@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>LifeQuest</title>
+<meta name="application-name" content="LifeQuest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LifeQuest">
+<meta name="theme-color" content="#04040e">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04040e;--bg2:#0a0a20;--card:#0d0d22;--card2:#111128;
+  --border:#17173a;--border2:#222248;
+  --gold:#f5c518;--goldg:rgba(245,197,24,.22);
+  --cyan:#00d4ff;--cyan2:#0090b8;
+  --purple:#a855f7;--purple2:#7c3aed;
+  --green:#22c55e;--red:#ef4444;--orange:#f97316;--teal:#14b8a6;
+  --text:#eeeeff;--text2:#7070a0;--text3:#2e2e5a;
+  --bronze:#cd7f32;--silver:#c0c0c0;--plat:#44c8f5;
+  --de:#22c55e;--dm:#f59e0b;--dh:#ef4444;--dep:#a855f7;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom:74px}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+button{font-family:'Inter',sans-serif;cursor:pointer;border:none;outline:none}
+
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(0,212,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.015) 1px,transparent 1px);background-size:36px 36px}
+.orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.05;animation:orbF 22s ease-in-out infinite}
+.o1{width:500px;height:500px;background:var(--cyan);top:-150px;left:-150px}
+.o2{width:400px;height:400px;background:var(--purple);top:25%;right:-120px;animation-delay:-8s}
+.o3{width:350px;height:350px;background:var(--gold);bottom:-80px;left:20%;animation-delay:-16s}
+@keyframes orbF{0%,100%{transform:translate(0,0)}33%{transform:translate(25px,-25px)}66%{transform:translate(-20px,20px)}}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(4,4,14,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 14px}
+.topbar-in{max-width:740px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.logo{font-family:'Orbitron',monospace;font-size:15px;font-weight:900;color:var(--gold);letter-spacing:2px;text-shadow:0 0 18px var(--goldg);flex-shrink:0}
+.logo em{color:var(--cyan);font-style:normal}
+.phdr{flex:1;min-width:0}
+.phdr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.lvl-pill{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.28);padding:2px 11px;border-radius:20px;letter-spacing:1px}
+.hpills{display:flex;gap:7px;align-items:center}
+.spill{font-size:12px;font-weight:700;color:var(--orange);background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.22);padding:2px 8px;border-radius:11px}
+.xpill{font-size:12px;font-weight:600;color:var(--cyan)}
+.xtr{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.xfil{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan2),var(--gold));transition:width .9s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+.xfil::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:xsh 2.5s infinite}
+@keyframes xsh{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+
+/* MOTTO BAR */
+.motto-bar{background:rgba(0,212,255,.03);border-bottom:1px solid var(--border);padding:6px 14px}
+.motto-inner{max-width:740px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.motto-text{font-size:11px;font-style:italic;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cdbar{display:flex;gap:12px;flex-shrink:0;font-size:10px;font-weight:600;color:var(--text2)}
+.cdbar span{color:var(--gold);font-family:'Orbitron',monospace;font-size:10px}
+.cdbar .ws{color:var(--purple)!important}
+
+/* TABS */
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(4,4,14,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:5px 4px 10px}
+.tbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;color:var(--text2);padding:5px 2px;border-radius:10px;transition:all .2s;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.tbtn .ti{font-size:18px;transition:transform .2s}
+.tbtn.active{color:var(--cyan)}.tbtn.active .ti{transform:scale(1.15)}
+
+.main{max-width:740px;margin:0 auto;padding:12px 12px 14px;position:relative;z-index:1}
+.page{display:none}.page.active{display:block;animation:pgIn .22s ease}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* SECTION HEADERS */
+.sh{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px}
+.sh:first-child{margin-top:2px}
+.st{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:2.5px;display:flex;align-items:center;gap:7px}
+.stl{width:3px;height:12px;border-radius:2px;background:var(--cyan)}
+.sc{font-size:11px;font-weight:700;color:var(--text2);background:var(--card2);border:1px solid var(--border);padding:2px 9px;border-radius:11px}
+.sc.ok{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.07)}
+
+/* CATEGORY HEADERS */
+.cat-hdr{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:9px 13px;margin:14px 0 7px}
+.cat-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.cat-cnt{font-size:11px;font-weight:700;background:var(--bg2);border:1px solid var(--border);padding:2px 9px;border-radius:10px;color:var(--text2)}
+.cat-cnt.all{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.07)}
+
+/* MISSION CARDS */
+.mstack{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.mc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:11px 11px 11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;position:relative;overflow:hidden;transition:all .17s ease;user-select:none}
+.mc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.mc[data-d="easy"]::before{background:var(--de)}
+.mc[data-d="medium"]::before{background:var(--dm)}
+.mc[data-d="hard"]::before{background:var(--dh)}
+.mc[data-d="epic"]::before{background:var(--dep);box-shadow:0 0 8px rgba(168,85,247,.4)}
+.mc[data-d="monthly"]::before{background:var(--teal);box-shadow:0 0 8px rgba(20,184,166,.4)}
+.mc:hover:not(.done){background:var(--card2);border-color:var(--border2);transform:translateX(3px);box-shadow:0 4px 22px rgba(0,0,0,.4),-3px 0 0 var(--cyan)}
+.mc.done{background:rgba(34,197,94,.03);border-color:rgba(34,197,94,.15);opacity:.5}
+.mc.done:hover{opacity:.7;transform:translateX(2px);box-shadow:0 3px 18px rgba(0,0,0,.3),-3px 0 0 var(--red)}
+.mc.auto-tracked{cursor:default}
+.mc.auto-tracked:hover:not(.done){transform:none;box-shadow:none;background:var(--card);border-color:var(--border)}
+.mic{font-size:22px;width:40px;height:40px;background:var(--bg2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s}
+.mc:hover:not(.auto-tracked) .mic{transform:scale(1.1) rotate(-4deg)}
+.mb{flex:1;min-width:0}
+.mn{font-size:13px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.md{font-size:11px;color:var(--text2);line-height:1.4;margin-bottom:5px}
+.mtags{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.dtag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;text-transform:uppercase;letter-spacing:.4px}
+.de{color:var(--de);background:rgba(34,197,94,.1)}
+.dm{color:var(--dm);background:rgba(245,158,11,.1)}
+.dh{color:var(--dh);background:rgba(239,68,68,.1)}
+.dep{color:var(--dep);background:rgba(168,85,247,.1);animation:epgl 2s infinite}
+.dmo{color:var(--teal);background:rgba(20,184,166,.1);animation:mogl 2s infinite}
+@keyframes epgl{0%,100%{box-shadow:none}50%{box-shadow:0 0 8px rgba(168,85,247,.4)}}
+@keyframes mogl{0%,100%{box-shadow:none}50%{box-shadow:0 0 8px rgba(20,184,166,.4)}}
+.ctag{font-size:9px;color:var(--text2);background:var(--bg2);padding:2px 6px;border-radius:6px}
+.autotag{font-size:9px;color:var(--cyan);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);padding:2px 6px;border-radius:6px}
+.mr{flex-shrink:0;text-align:right;min-width:42px}
+.mxp{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--gold);line-height:1}
+.mxpl{font-size:9px;color:var(--text2);font-weight:600}
+.mcheck{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--green);opacity:0;transition:opacity .2s;pointer-events:none}
+.mc.done .mcheck{opacity:1}.mc.done .mr{opacity:0}
+.mundo{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:var(--red);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.22);padding:2px 7px;border-radius:7px;opacity:0;transition:opacity .2s;pointer-events:none}
+.mc.done:hover:not(.auto-tracked) .mundo{opacity:1}
+.mc.done:hover:not(.auto-tracked) .mcheck{opacity:0}
+.autoprog{font-size:10px;color:var(--cyan);font-weight:700;padding:1px 0}
+
+/* EPIC WRAP */
+.epic-wrap{background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.2);border-radius:15px;padding:11px;margin-bottom:6px}
+.epic-lbl{font-size:9px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.epic-lbl::after{content:'SIEMPRE DISPONIBLE';font-size:8px;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);padding:1px 6px;border-radius:5px}
+
+/* MONTHLY WRAP */
+.monthly-wrap{background:rgba(20,184,166,.04);border:1px solid rgba(20,184,166,.2);border-radius:15px;padding:11px;margin-bottom:6px}
+.monthly-lbl{font-size:9px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.monthly-reset{font-size:9px;color:var(--text2);margin-left:auto}
+.monthly-timer-btn{background:rgba(20,184,166,.08);border:1px solid rgba(20,184,166,.22);color:var(--teal);padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;transition:all .2s;margin-top:7px;display:inline-flex;align-items:center;gap:4px}
+.monthly-timer-btn:hover{background:rgba(20,184,166,.15)}
+.monthly-timer-btn.running{animation:pulseB .9s infinite}
+@keyframes pulseB{0%,100%{box-shadow:none}50%{box-shadow:0 0 8px rgba(20,184,166,.4)}}
+.mtimer-display{display:none;background:var(--bg2);border-radius:9px;padding:9px 12px;margin-top:7px;align-items:center;gap:10px}
+.mtimer-display.show{display:flex}
+.mtt{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--teal);letter-spacing:2px}
+.mtbar{flex:1;height:4px;background:var(--border);border-radius:3px;overflow:hidden}
+.mtfill{height:100%;border-radius:3px;background:linear-gradient(90deg,#0d9488,var(--teal));transition:width 1s linear}
+.mtstop{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red);padding:4px 9px;border-radius:7px;font-size:11px;font-weight:700}
+
+/* WEEKLY HARD (once) */
+.whard-wrap{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.18);border-radius:15px;padding:11px;margin-bottom:6px}
+.whard-lbl{font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.whard-lbl::after{content:'UNA VEZ POR SEMANA';font-size:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);padding:1px 6px;border-radius:5px}
+
+/* AUTO WEEKLY */
+.wauto-info{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:11px;padding:9px 12px;margin-bottom:7px;font-size:11px;color:var(--text2);line-height:1.5}
+.wauto-info strong{color:var(--cyan)}
+
+/* WEEKLY PROGRESS BARS */
+.wc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:6px}
+.wt{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.wi{font-size:19px;width:40px;height:40px;background:var(--bg2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.win{flex:1;min-width:0}
+.wn{font-size:13px;font-weight:700;margin-bottom:2px}
+.wd{font-size:11px;color:var(--text2);line-height:1.4}
+.wm{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.wcount{font-size:12px;font-weight:700;color:var(--text2)}.wcount b{color:var(--text)}
+.wxp{font-size:12px;font-weight:700;color:var(--gold)}
+.ptrack{height:6px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.pfill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--purple2),var(--cyan));transition:width .5s ease}
+.pfill.complete{background:linear-gradient(90deg,var(--green),#16a34a)}
+.wbtns{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.wadd{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.22);color:var(--cyan);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;transition:all .2s}
+.wadd:hover{background:rgba(0,212,255,.14)}.wadd:disabled{opacity:.3;cursor:not-allowed}
+.wundo{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);color:var(--red);padding:6px 9px;border-radius:8px;font-size:12px;font-weight:700;transition:all .2s}
+.wundo:hover{background:rgba(239,68,68,.1)}.wundo:disabled{opacity:.3;cursor:not-allowed}
+.wtbtn{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.22);color:var(--purple);padding:6px 11px;border-radius:8px;font-size:11px;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:4px}
+.wtbtn:hover{background:rgba(168,85,247,.15)}
+.wtbtn.running{background:rgba(168,85,247,.2);border-color:var(--purple);animation:pulseB .9s infinite}
+.wtd{display:none;background:var(--bg2);border-radius:9px;padding:9px 12px;margin-top:8px;align-items:center;gap:9px}
+.wtd.show{display:flex}
+.wtt{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--purple);letter-spacing:2px}
+.wtlbl{font-size:9px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.wtbar{flex:1;height:4px;background:var(--border);border-radius:3px;overflow:hidden}
+.wtfill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple2),var(--purple));transition:width 1s linear}
+.wtstop{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red);padding:4px 9px;border-radius:7px;font-size:11px;font-weight:700}
+
+/* WEEK COUNTDOWN */
+.week-cd{background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.14);border-radius:11px;padding:9px 13px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.wdots{display:flex;gap:4px}
+.wdot{width:10px;height:10px;border-radius:50%}
+.wdot.past{background:var(--green)}.wdot.today{background:var(--gold);box-shadow:0 0 6px var(--goldg)}.wdot.future{background:var(--border2)}
+
+/* RANDOM */
+.rndwrap{background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:12px;margin-bottom:6px}
+.rndbtn{width:100%;background:linear-gradient(135deg,var(--purple2),var(--purple));color:#fff;padding:11px;border-radius:10px;font-size:13px;font-weight:700;transition:all .2s;box-shadow:0 4px 16px rgba(168,85,247,.28)}
+.rndbtn:hover{transform:scale(1.02)}
+.rndname{font-size:14px;font-weight:700;color:var(--purple);margin-bottom:5px}
+.rnddesc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px}
+.rndcmp{background:var(--purple);color:#fff;padding:9px 22px;border-radius:9px;font-size:13px;font-weight:700;transition:transform .2s}
+.rndcmp:hover{transform:scale(1.04)}
+.rnddone{text-align:center;color:var(--green);font-weight:700;font-size:13px;padding:6px 0}
+
+/* SHOP */
+.shop-hdr{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:13px;text-align:center;position:relative;overflow:hidden}
+.shop-hdr::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -20%,rgba(245,197,24,.06),transparent 70%);pointer-events:none}
+.sxp{font-family:'Orbitron',monospace;font-size:32px;font-weight:700;color:var(--gold);text-shadow:0 0 22px var(--goldg);display:block;margin-bottom:3px}
+.sxpl{font-size:10px;color:var(--text2);font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.swarn{font-size:11px;color:var(--orange);font-weight:700;margin-top:9px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.18);border-radius:8px;padding:5px 11px;display:inline-block}
+.tiersep{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;gap:9px;margin:13px 0 7px}
+.tiersep::after{content:'';flex:1;height:1px;background:var(--border)}
+.rc{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:11px;display:flex;align-items:center;gap:10px;margin-bottom:6px;transition:all .2s}
+.rc:hover{border-color:var(--border2);background:var(--card2)}
+.rc.unaf{opacity:.35;filter:grayscale(.3)}
+.ricon{font-size:22px;width:44px;height:44px;background:var(--bg2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rin{flex:1;min-width:0}.rn{font-size:13px;font-weight:700;margin-bottom:2px}.rdesc{font-size:11px;color:var(--text2)}
+.rr{flex-shrink:0;text-align:right}
+.rcost{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--gold);display:block;line-height:1}
+.rcostl{font-size:9px;color:var(--text2);font-weight:600;margin-bottom:3px;display:block}
+.buybtn{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.28);color:var(--gold);padding:4px 11px;border-radius:7px;font-size:11px;font-weight:700;transition:all .2s;display:block}
+.buybtn:hover{background:rgba(245,197,24,.2)}.buybtn:disabled{opacity:.3;cursor:not-allowed}
+
+/* STATS */
+.stats-hero{background:var(--card);border:1px solid var(--border);border-radius:17px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.stats-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% -30%,rgba(0,212,255,.04),transparent 70%);pointer-events:none}
+.slvlrow{display:flex;align-items:center;gap:14px;margin-bottom:13px}
+.lcirc{width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);background:rgba(245,197,24,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 20px var(--goldg)}
+.lcircn{font-family:'Orbitron',monospace;font-size:19px;font-weight:700;color:var(--gold);line-height:1}
+.lcircl{font-size:7px;color:var(--text2);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.linfo{flex:1}.ltitle{font-size:14px;font-weight:700;margin-bottom:2px}.lsub{font-size:11px;color:var(--text2);margin-bottom:7px}
+.lxbt{height:6px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.lxbf{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--cyan2),var(--gold));transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;text-align:center}
+.scard.wide{grid-column:span 2}
+.snum{font-family:'Orbitron',monospace;font-size:21px;font-weight:700;color:var(--cyan);margin-bottom:3px;line-height:1}
+.slbl{font-size:9px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.chartc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:7px}
+.chtitle{font-size:10px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:13px}
+.chbars{display:flex;align-items:flex-end;gap:5px;height:75px}
+.cbw{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.cb{width:100%;border-radius:4px 4px 0 0;min-height:3px;background:linear-gradient(180deg,var(--cyan),var(--purple));transition:height .6s ease}
+.cb.td{background:linear-gradient(180deg,var(--gold),var(--orange))}
+.cday{font-size:9px;color:var(--text2);font-weight:700}
+.dzone{background:rgba(239,68,68,.03);border:1px solid rgba(239,68,68,.12);border-radius:13px;padding:13px;margin-top:12px;text-align:center}
+.dztitle{font-size:11px;font-weight:700;color:var(--red);margin-bottom:3px;text-transform:uppercase;letter-spacing:1px}
+.dzsub{font-size:11px;color:var(--text2);margin-bottom:10px}
+.resetbtn{background:transparent;border:1px solid var(--red);color:var(--red);padding:7px 18px;border-radius:8px;font-size:12px;font-weight:700;transition:all .2s}
+.resetbtn:hover{background:rgba(239,68,68,.09)}
+
+/* TROPHIES */
+.trsum{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.tci .tcn{display:block;font-size:15px;font-weight:700;font-family:'Orbitron',monospace;line-height:1;margin-bottom:2px}
+.tci .tce{display:block;font-size:18px;margin-bottom:3px}
+.tci .tcl{font-size:8px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tcbronze .tcn{color:var(--bronze)}.tcsilver .tcn{color:var(--silver)}.tcgold .tcn{color:var(--gold)}.tcplat .tcn{color:var(--plat)}
+.tsep{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;gap:9px;margin:13px 0 8px}
+.tsep::before,.tsep::after{content:'';flex:1;height:1px;background:var(--border)}
+.tsbronze{color:var(--bronze)}.tssilver{color:var(--silver)}.tsgold{color:var(--gold)}.tsplat{color:var(--plat)}
+.tcard{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:11px;display:flex;align-items:center;gap:11px;margin-bottom:5px}
+.tcard.unlocked{border-color:rgba(245,197,24,.18);background:rgba(245,197,24,.015)}
+.tcard.unlocked.platcard{border-color:rgba(68,200,245,.28);background:linear-gradient(135deg,rgba(68,200,245,.03),rgba(168,85,247,.03));box-shadow:0 2px 18px rgba(68,200,245,.08)}
+.tcard.locked{opacity:.4;filter:grayscale(.5)}
+.ticw{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;background:var(--bg2)}
+.tcard.locked .ticw{filter:brightness(0) saturate(0)}
+.tbody{flex:1;min-width:0}
+.tname{font-size:13px;font-weight:700;margin-bottom:2px}
+.tcard.locked .tname{color:var(--text2)}
+.tdesc{font-size:11px;color:var(--text2);line-height:1.4}
+.tdate{font-size:9px;color:var(--text3);margin-top:2px}
+.ttier{font-size:16px;flex-shrink:0}
+
+/* TIMER PAGE */
+.timercard{background:var(--card);border:1px solid var(--border);border-radius:19px;padding:22px 14px;margin-bottom:12px;text-align:center}
+.modetabs{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.mtab{background:var(--bg2);border:1px solid var(--border2);color:var(--text2);padding:6px 11px;border-radius:9px;font-size:11px;font-weight:700;transition:all .2s}
+.mtab.active{background:rgba(0,212,255,.09);border-color:var(--cyan);color:var(--cyan)}
+.tringw{width:182px;height:182px;margin:0 auto 16px;position:relative}
+.tringw svg{transform:rotate(-90deg)}
+.rbg{fill:none;stroke:var(--bg2);stroke-width:10}
+.rfill{fill:none;stroke:url(#rg);stroke-width:10;stroke-linecap:round;stroke-dasharray:509.3;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear}
+.tcenter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ttime{font-family:'Orbitron',monospace;font-size:33px;font-weight:700;color:var(--text);letter-spacing:2px}
+.tmodelbl{font-size:9px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-top:3px}
+.sdots{display:flex;gap:8px;justify-content:center;margin-bottom:6px}
+.sdot{width:10px;height:10px;border-radius:50%;background:var(--border2);transition:all .3s}
+.sdot.done{background:var(--green);box-shadow:0 0 7px rgba(34,197,94,.4)}
+.slbl{font-size:11px;color:var(--text2);font-weight:600;margin-bottom:16px}
+.tctrls{display:flex;gap:9px;justify-content:center}
+.tplay{background:var(--cyan);color:#000;padding:11px 28px;border-radius:11px;font-size:14px;font-weight:800;transition:all .2s}
+.tplay:hover{background:var(--cyan2);transform:scale(1.04)}
+.trst{background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:11px 16px;border-radius:11px;font-size:13px;font-weight:700;transition:all .2s}
+.tipc{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px;line-height:1.8;font-size:12px;color:var(--text2);margin-top:10px}
+.tipc strong{color:var(--text)}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(10,10,28,.97);border:1px solid var(--border2);border-radius:13px;padding:10px 16px;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;box-shadow:0 8px 36px rgba(0,0,0,.6);z-index:300;pointer-events:none;white-space:nowrap;transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:92vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.txpb{font-family:'Orbitron',monospace;font-size:10px;color:var(--gold);background:rgba(245,197,24,.09);border:1px solid rgba(245,197,24,.22);padding:2px 9px;border-radius:7px;flex-shrink:0}
+
+/* TROPHY NOTIF */
+.trnotif{position:fixed;top:78px;right:-320px;z-index:400;background:rgba(8,8,24,.97);border:1px solid var(--border2);border-radius:13px;padding:11px 13px;display:flex;align-items:center;gap:11px;width:285px;box-shadow:0 8px 36px rgba(0,0,0,.7);transition:right .4s cubic-bezier(.34,1.56,.64,1)}
+.trnotif.show{right:10px}
+.nico{font-size:26px;width:46px;height:46px;background:var(--bg2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nlbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px}
+.nlbl.bronze{color:var(--bronze)}.nlbl.silver{color:var(--silver)}.nlbl.gold{color:var(--gold)}.nlbl.plat{color:var(--plat)}
+.nname{font-size:13px;font-weight:700}.ndesc{font-size:10px;color:var(--text2);margin-top:2px}
+
+/* HUMOR MODAL */
+.humor-ov{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.humor-ov.show{opacity:1;pointer-events:all}
+.humor-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:32px 24px;text-align:center;max-width:320px;width:90%;animation:lvpop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes lvpop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.humor-emoji{font-size:52px;margin-bottom:14px;display:block}
+.humor-type{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--text2);margin-bottom:8px}
+.humor-text{font-size:14px;line-height:1.6;color:var(--text);font-weight:500;margin-bottom:20px}
+.humor-close{background:var(--cyan);color:#000;border-radius:10px;padding:10px 28px;font-size:13px;font-weight:800;transition:transform .2s}
+.humor-close:hover{transform:scale(1.05)}
+
+/* LEVEL UP */
+.lvlup-ov{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.lvlup-ov.show{opacity:1;pointer-events:all}
+.lvlup-box{background:var(--card);border:1px solid rgba(245,197,24,.28);border-radius:22px;padding:34px 26px;text-align:center;max-width:300px;width:90%;box-shadow:0 0 70px rgba(245,197,24,.12);animation:lvpop .4s cubic-bezier(.34,1.56,.64,1)}
+.lve{font-size:68px;display:block;margin-bottom:12px;animation:bnc 1s infinite}
+@keyframes bnc{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.lvtitle{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--gold);text-shadow:0 0 28px var(--goldg);letter-spacing:3px;margin-bottom:6px}
+.lvsub{font-size:14px;color:var(--text2);font-weight:600;margin-bottom:4px}
+.lvtname{font-size:12px;color:var(--cyan);font-weight:700;margin-bottom:20px}
+.lvbtn{background:var(--gold);color:#000;border-radius:11px;padding:12px 32px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:1px;transition:transform .2s}
+.lvbtn:hover{transform:scale(1.06)}
+
+.pt{position:fixed;pointer-events:none;z-index:250;font-size:15px;animation:ptup 1.3s ease-out forwards}
+@keyframes ptup{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-150px) scale(.2) rotate(35deg)}}
+.penb{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.22);border-radius:11px;padding:9px 12px;display:flex;align-items:center;gap:9px;margin-bottom:10px;font-size:12px;font-weight:600;color:var(--red)}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="logo">LIFE<em>QUEST</em></div>
+    <div class="phdr">
+      <div class="phdr-row">
+        <div class="lvl-pill">NIV <span id="hLvl">1</span></div>
+        <div class="hpills"><div class="spill">🔥<span id="hStr">0</span></div><div class="xpill">⚡<span id="hXP">0</span></div></div>
+      </div>
+      <div class="xtr"><div class="xfil" id="hXF" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+<div class="motto-bar">
+  <div class="motto-inner">
+    <div class="motto-text" id="mottoText">Cargando...</div>
+    <div class="cdbar">
+      <span>⏳<span id="cdD">--:--:--</span></span>
+      <span>📅<span class="ws" id="cdW">--</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ═══ MISIONES ═══ -->
+  <div class="page active" id="page-missions">
+    <div id="penban" class="penb" style="display:none">⚠️ Rompiste la racha ayer. Hoy no puedes fallar.</div>
+
+    <!-- ÉPICA -->
+    <div class="sh" style="margin-top:2px"><div class="st"><div class="stl" style="background:var(--dep)"></div>ÉPICA DEL DÍA</div><div class="sc" id="epicBadge">+XP</div></div>
+    <div class="epic-wrap"><div class="epic-lbl">Misión especial</div><div class="mstack" id="epicList"></div></div>
+
+    <!-- CATEGORÍAS DIARIAS -->
+    <div id="dailyCats"></div>
+
+    <!-- ALEATORIA -->
+    <div class="sh"><div class="st"><div class="stl" style="background:var(--purple)"></div>ALEATORIA</div></div>
+    <div class="rndwrap"><div id="rndInner"><button class="rndbtn" onclick="rollRandom()">🎲 Misión aleatoria del día</button></div></div>
+
+    <!-- SEMANALES AUTO -->
+    <div class="sh"><div class="st"><div class="stl" style="background:var(--cyan)"></div>SEMANALES — AUTO</div><div class="sc" id="wAutoBadge">0/0</div></div>
+    <div class="wauto-info">🤖 <strong>Se actualizan solas</strong> al completar la misión diaria correspondiente. La XP se da al alcanzar el objetivo de la semana.</div>
+    <div id="weeklyAutoList"></div>
+
+    <!-- SEMANALES MANUALES (duras, 1 vez) -->
+    <div class="sh"><div class="st"><div class="stl" style="background:var(--red)"></div>SEMANALES DIFÍCILES</div><div class="sc" id="wHardBadge">0/0</div></div>
+    <div class="whard-wrap"><div class="whard-lbl">Reto semanal</div><div id="weeklyHardList"></div></div>
+
+    <!-- MENSUALES -->
+    <div class="sh"><div class="st"><div class="stl" style="background:var(--teal)"></div>MISIONES MENSUALES</div><div class="sc" id="monthlyBadge">0/0</div></div>
+    <div class="monthly-wrap"><div class="monthly-lbl">Reto del mes <span class="monthly-reset" id="monthlyReset"></span></div><div id="monthlyList"></div></div>
+  </div>
+
+  <!-- TIENDA -->
+  <div class="page" id="page-shop">
+    <div class="shop-hdr">
+      <span class="sxp" id="shopXP">0</span>
+      <div class="sxpl">XP disponibles</div>
+      <div class="swarn">⚠️ Recompensas grandes = semanas de trabajo real</div>
+    </div>
+    <div id="shopList"></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="page" id="page-stats">
+    <div class="stats-hero">
+      <div class="slvlrow">
+        <div class="lcirc"><div class="lcircn" id="sLvlN">1</div><div class="lcircl">nivel</div></div>
+        <div class="linfo">
+          <div class="ltitle" id="sLvlT">Dormido</div>
+          <div class="lsub" id="sXPP">0 / 150 XP para nivel 2</div>
+          <div class="lxbt"><div class="lxbf" id="sXPF" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sgrid">
+      <div class="scard"><div class="snum" id="stXP">0</div><div class="slbl">XP Total</div></div>
+      <div class="scard"><div class="snum" id="stStr">0</div><div class="slbl">Racha actual</div></div>
+      <div class="scard"><div class="snum" id="stBStr">0</div><div class="slbl">Mejor racha</div></div>
+      <div class="scard"><div class="snum" id="stM">0</div><div class="slbl">Misiones totales</div></div>
+      <div class="scard"><div class="snum" id="stNF">0</div><div class="slbl">Días abstinencia</div></div>
+      <div class="scard"><div class="snum" id="stTd">0</div><div class="slbl">Completadas hoy</div></div>
+    </div>
+    <div class="chartc">
+      <div class="chtitle">XP esta semana</div>
+      <div class="chbars" id="weekChart"></div>
+    </div>
+    <div class="dzone">
+      <div class="dztitle">Zona de peligro</div>
+      <div class="dzsub">Borra TODO el progreso. Sin vuelta atrás.</div>
+      <button class="resetbtn" onclick="hardReset()">🗑 Reiniciar todo</button>
+    </div>
+  </div>
+
+  <!-- LOGROS -->
+  <div class="page" id="page-trophies">
+    <div class="trsum">
+      <div class="tci tcbronze"><span class="tce">🥉</span><span class="tcn" id="tcB">0</span><span class="tcl">Bronce</span></div>
+      <div class="tci tcsilver"><span class="tce">🥈</span><span class="tcn" id="tcS">0</span><span class="tcl">Plata</span></div>
+      <div class="tci tcgold"><span class="tce">🥇</span><span class="tcn" id="tcG">0</span><span class="tcl">Oro</span></div>
+      <div class="tci tcplat"><span class="tce">💎</span><span class="tcn" id="tcP">0</span><span class="tcl">Platino</span></div>
+    </div>
+    <div id="trophyList"></div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="page" id="page-timer">
+    <div class="timercard">
+      <div class="modetabs">
+        <button class="mtab active" onclick="setMode(this,'FOCO',25)">🎯 25m</button>
+        <button class="mtab" onclick="setMode(this,'DESCANSO',5)">☕ 5m</button>
+        <button class="mtab" onclick="setMode(this,'LARGO',15)">🌙 15m</button>
+        <button class="mtab" onclick="setMode(this,'GYM',45)">🏋️ 45m</button>
+        <button class="mtab" onclick="setMode(this,'RAP',20)">🎤 20m</button>
+        <button class="mtab" onclick="setMode(this,'TEÓRICO',60)">🚗 60m</button>
+        <button class="mtab" onclick="setMode(this,'LECTURA',30)">📚 30m</button>
+        <button class="mtab" onclick="setMode(this,'KEGEL',10)">💪 10m</button>
+      </div>
+      <div class="tringw">
+        <svg viewBox="0 0 182 182" width="182" height="182">
+          <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#f5c518"/></linearGradient></defs>
+          <circle class="rbg" cx="91" cy="91" r="81"/>
+          <circle class="rfill" id="ringFill" cx="91" cy="91" r="81"/>
+        </svg>
+        <div class="tcenter"><div class="ttime" id="tDisp">25:00</div><div class="tmodelbl" id="tLbl">FOCO</div></div>
+      </div>
+      <div class="sdots" id="sdots"><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div><div class="sdot"></div></div>
+      <div class="slbl" id="sLbl">Sesión 1 de 4 · 4 completos = +50 XP</div>
+      <div class="tctrls">
+        <button class="tplay" id="tPlayBtn" onclick="toggleTimer()">▶ Iniciar</button>
+        <button class="trst" onclick="resetTimer()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="tipc">
+      🎯 <strong>Foco:</strong> Móvil boca abajo, silencio total.<br>
+      🚗 <strong>Teórico:</strong> Examen el <strong style="color:var(--red)">17 de abril</strong>. Sin excusas.<br>
+      💪 <strong>Kegel:</strong> Contrae 5s, suelta 5s. Repite 10 min.<br>
+      🏆 <strong>4 pomodoros</strong> = <span style="color:var(--gold)">+50 XP bonus automático</span>.
+    </div>
+  </div>
+
+</div>
+
+<div class="tabs">
+  <button class="tbtn active" onclick="sw('missions',this)"><span class="ti">⚔️</span>Misiones</button>
+  <button class="tbtn" onclick="sw('shop',this)"><span class="ti">🏪</span>Tienda</button>
+  <button class="tbtn" onclick="sw('stats',this)"><span class="ti">📊</span>Stats</button>
+  <button class="tbtn" onclick="sw('trophies',this)"><span class="ti">🏅</span>Logros</button>
+  <button class="tbtn" onclick="sw('timer',this)"><span class="ti">⏱️</span>Timer</button>
+</div>
+
+<div class="toast" id="toast"><span id="tIcon">✨</span><span id="tText"></span><span class="txpb" id="tXP"></span></div>
+<div class="trnotif" id="trnotif">
+  <div class="nico" id="nIco">🏆</div>
+  <div><div class="nlbl" id="nLbl">Bronce</div><div class="nname" id="nName"></div><div class="ndesc" id="nDesc"></div></div>
+</div>
+<div class="humor-ov" id="humorOv">
+  <div class="humor-box">
+    <span class="humor-emoji" id="humorEmoji">😂</span>
+    <div class="humor-type" id="humorType">FRASE DEL DÍA</div>
+    <div class="humor-text" id="humorText"></div>
+    <button class="humor-close" onclick="closeHumor()">LET'S GO 🔥</button>
+  </div>
+</div>
+<div class="lvlup-ov" id="lvov">
+  <div class="lvlup-box">
+    <span class="lve">🚀</span>
+    <div class="lvtitle">LEVEL UP!</div>
+    <div class="lvsub">¡Nivel <span style="color:var(--gold)"><span id="lvN">2</span></span>!</div>
+    <div class="lvtname" id="lvTN">Principiante</div>
+    <button class="lvbtn" onclick="closeLv()">SEGUIR →</button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   HUMOR & MOTIVATION DATA
+══════════════════════════════════════════════════ */
+const HUMOR=[
+  {e:'🔥',t:'Motivación',txt:'La motivación te arranca. El hábito te mantiene. Tú eliges cuál cultivar.'},
+  {e:'😤',t:'Verdad dura',txt:'En 10 años no vas a acordarte de la serie que viste hoy. Sí vas a acordarte si aprendiste algo.'},
+  {e:'💀',t:'Dark humor',txt:'— ¿Cómo estás? — Vivo, que ya es mucho para un 6 de la mañana.'},
+  {e:'🧠',t:'Filosofía barata',txt:'Tu cerebro lleva 200.000 años cazando mamuts. Claro que le cuesta estudiar el teórico del coche.'},
+  {e:'🏆',t:'Motivación',txt:'Nadie se acordará de los días que descansaste. Todo el mundo notará los resultados.'},
+  {e:'😂',t:'Chiste',txt:'— Oye, ¿por qué madrugas tanto? — Para tener tiempo de fallar y volver a intentarlo antes de que salga el sol.'},
+  {e:'🔥',t:'Frase',txt:'Si no duele un poco, no está funcionando.'},
+  {e:'🤣',t:'Realidad',txt:'Mi motivación al ponerme la alarma a las 6 AM: ¡SOY IMPARABLE! Mi motivación cuando suena: ¿pero por qué hice esto?'},
+  {e:'💡',t:'Dato útil',txt:'El interés compuesto es la única magia real que existe. Empieza a aprenderlo ya.'},
+  {e:'😈',t:'Dark humor',txt:'Dicen que el éxito es 1% inspiración y 99% transpiración. Buenas noticias: ya sabes sudar.'},
+  {e:'🎤',t:'Rap wisdom',txt:'Las mejores letras no salen inspirado. Salen practicando cuando no tienes ganas.'},
+  {e:'💪',t:'Motivación',txt:'Cada vez que haces algo difícil siendo joven, te estás robando ventaja a tu versión futura.'},
+  {e:'🤦',t:'Realidad',txt:'— ¿Qué has hecho hoy? — He completado una misión de LifeQuest. — ¿Eso es todo? — ... — Además del gym, el freestyle y estudiar. — Eso ya es otra cosa.'},
+  {e:'🧊',t:'Dark wisdom',txt:'La ducha fría no te hará rico. Pero sí te enseña que puedes hacer cosas que no quieres hacer. Y eso sí te hará rico.'},
+  {e:'🌅',t:'Motivación',txt:'Levantarte a las 6 AM no te garantiza el éxito. Pero quedarte en la cama te garantiza lo contrario.'},
+  {e:'😅',t:'Chiste',txt:'Estoy en modo gymrat. Básicamente me duele todo y tengo hambre constantemente. Pero el espejo va a pagar.'},
+  {e:'🎯',t:'Frase',txt:'Una hora al día de enfoque real vale más que un día entero de distracción activa.'},
+  {e:'🤡',t:'Autocrítica',txt:'Yo de joven: "Voy a cambiar el mundo." Yo ahora: "Hoy hice los kegel y estudié el teórico." Progreso.'},
+  {e:'⚡',t:'Motivación',txt:'Tu novia no puede verte entrenar a las 6 AM, pero lo va a notar igual.'},
+  {e:'😂',t:'Chiste',txt:'El teórico del coche es básicamente aprender a tener razón cuando el GPS se equivoca.'},
+];
+
+const MOTTOS=[
+  '💬 "El dolor de hoy es la fuerza de mañana." — Arnold',
+  '💬 "Trabaja en silencio. Que el éxito haga el ruido." ',
+  '💬 "La disciplina es elegir entre lo que quieres ahora y lo que más quieres."',
+  '💬 "Si no construyes tu sueño, alguien te contratará para construir el suyo."',
+  '💬 "No te compares con nadie. Sé mejor que el tú de ayer."',
+  '💬 "El talento es común. La constancia, rara."',
+  '💬 "Comienza donde estás. Usa lo que tienes. Haz lo que puedas."',
+  '💬 "Un año desde hoy te alegrarás de haber empezado hoy."',
+  '💬 "No esperes motivación. Actúa y la motivación llega después."',
+  '💬 "El éxito no es suerte. Es lo que pasa cuando la preparación encuentra la oportunidad."',
+  '⚠️ Recuerda: el examen del teórico es el 17 de abril. ¿Has estudiado hoy?',
+  '💡 Tip: El kegel es invisible pero sus efectos no. 10 minutos bien hechos bastan.',
+  '🔥 La racha es frágil. Un solo día de fallo y vuelta a empezar. No lo rompas.',
+  '🎤 Un verse al día y en un año tienes 365 verses más que ayer.',
+];
+
+/* ══════════════════════════════════════════════════
+   MISSIONS DATA
+══════════════════════════════════════════════════ */
+const CATEGORIES=[
+  {id:'manana',emoji:'☀️',name:'Mañana',missions:[
+    {id:'d01',icon:'⏰',name:'Levántate a las 6 AM',desc:'Sin snooze, sin excusas. Pies en el suelo antes de las 6:00.',xp:55,diff:'hard'},
+    {id:'d02',icon:'🌅',name:'Sal a entrenar al amanecer',desc:'Nada más levantarte: sal a correr o entrenar al aire libre.',xp:60,diff:'hard'},
+    {id:'d03',icon:'💪',name:'Ejercicios de Kegel',desc:'Mínimo 10 minutos. Contrae 5s, suelta 5s. Repite.',xp:15,diff:'easy'},
+    {id:'d04',icon:'🚿',name:'Ducha de contraste',desc:'Termina tu ducha con mínimo 60 segundos de agua fría.',xp:22,diff:'medium'},
+    {id:'d05',icon:'🎯',name:'Planifica el día',desc:'Escribe tus 3 prioridades de hoy antes de empezar cualquier cosa.',xp:13,diff:'easy'},
+    {id:'d06',icon:'🌬️',name:'Respiración profunda',desc:'Mínimo 5 min: 4s inhala, 7s retén, 8s exhala.',xp:11,diff:'easy'},
+  ]},
+  {id:'cuerpo',emoji:'💪',name:'Cuerpo',missions:[
+    {id:'d07',icon:'🏋️',name:'Sesión de gym / calistenia',desc:'Mínimo 45 minutos de entrenamiento serio. Sin excusas.',xp:55,diff:'hard'},
+    {id:'d08',icon:'🏃',name:'Cardio',desc:'Mínimo 20 minutos de cardio real: correr, bici o saltar.',xp:28,diff:'medium'},
+    {id:'d09',icon:'🤸',name:'Movilidad y flexibilidad',desc:'Mínimo 10 minutos de stretching. Cuida las articulaciones.',xp:13,diff:'easy'},
+    {id:'d10',icon:'💧',name:'2 litros de agua',desc:'Hidratación básica. Si tienes que ponerte alarmas para acordarte, ponlas.',xp:11,diff:'easy'},
+    {id:'d11',icon:'😴',name:'Cama antes de las 11 PM',desc:'Si madrugas a las 6, necesitas dormir. Sin negociación.',xp:27,diff:'medium'},
+  ]},
+  {id:'rap',emoji:'🎤',name:'Rap & Música',missions:[
+    {id:'d12',icon:'🎤',name:'Freestyle',desc:'Mínimo 15 minutos seguidos. Si puedes, grábate.',xp:34,diff:'medium'},
+    {id:'d13',icon:'📝',name:'Escribe una estrofa',desc:'Una estrofa completa, tema libre. Que fluya.',xp:27,diff:'medium'},
+    {id:'d14',icon:'🎧',name:'Analiza un beat',desc:'Busca un beat, escúchalo varias veces y escribe qué te transmite.',xp:15,diff:'easy'},
+    {id:'d15',icon:'🎙️',name:'Graba un verse',desc:'Graba en audio un verse tuyo. Escúchate y mejora.',xp:38,diff:'medium'},
+    {id:'d16',icon:'🎵',name:'Escucha música con intención',desc:'Mínimo 20 min analizando letras y flow de artistas que te inspiren.',xp:13,diff:'easy'},
+  ]},
+  {id:'mente',emoji:'🧠',name:'Mente & Estudio',missions:[
+    {id:'d17',icon:'📚',name:'Lee',desc:'Mínimo 20 páginas. Libro físico o digital. Nada de artículos.',xp:34,diff:'medium'},
+    {id:'d18',icon:'🚗',name:'Estudia el teórico',desc:'Mínimo 30 minutos de tests. El 17 de abril está cerca.',xp:40,diff:'medium'},
+    {id:'d19',icon:'🏫',name:'Estudia para clase',desc:'Mínimo 30 minutos de tus materias. Sin distracciones.',xp:34,diff:'medium'},
+    {id:'d20',icon:'💻',name:'Aprende a programar',desc:'Mínimo 15 minutos de código: Python, HTML, lo que sea.',xp:27,diff:'medium'},
+    {id:'d21',icon:'🤖',name:'Aprende algo de IA',desc:'Mínimo 15 min: herramientas, prompting, automatización.',xp:27,diff:'medium'},
+    {id:'d22',icon:'📓',name:'Escribe en tu diario',desc:'Mínimo 5 frases: cómo fue el día y qué mejorarás.',xp:15,diff:'easy'},
+    {id:'d23',icon:'🙏',name:'Gratitud',desc:'Escribe 3 cosas concretas por las que estás agradecido hoy.',xp:10,diff:'easy'},
+  ]},
+  {id:'dinero',emoji:'💰',name:'Dinero & Trabajo',missions:[
+    {id:'d24',icon:'💼',name:'Manda CVs',desc:'Mínimo 2 solicitudes de trabajo reales.',xp:40,diff:'medium'},
+    {id:'d25',icon:'💡',name:'Aprende de inversiones',desc:'Mínimo 15 min: fondos, ETFs, bolsa, cripto.',xp:27,diff:'medium'},
+    {id:'d26',icon:'🧠',name:'Escribe una idea de negocio',desc:'Una idea, da igual lo mala que sea. Escríbela en papel.',xp:23,diff:'medium'},
+    {id:'d27',icon:'🔢',name:'Finanzas personales',desc:'Mínimo 15 min: presupuesto, ahorro, interés compuesto.',xp:23,diff:'medium'},
+    {id:'d28',icon:'🔍',name:'Investiga el mercado laboral',desc:'Mínimo 15 min buscando ofertas o sectores interesantes.',xp:17,diff:'easy'},
+  ]},
+  {id:'disciplina',emoji:'⚔️',name:'Disciplina',missions:[
+    {id:'d29',icon:'🚫',name:'Cero pajas',desc:'Sin masturbación hoy. Esa energía es tuya para crecer.',xp:50,diff:'hard'},
+    {id:'d30',icon:'📵',name:'2h sin redes sociales',desc:'Mínimo 2 horas continuas sin Instagram, TikTok ni YouTube por ocio.',xp:44,diff:'hard'},
+    {id:'d31',icon:'📴',name:'1h sin móvil',desc:'Apaga el móvil o déjalo en otra habitación durante 1 hora entera.',xp:35,diff:'hard'},
+    {id:'d32',icon:'🧹',name:'Ordena tu espacio',desc:'Mínimo 10 minutos recogiendo tu habitación o zona de trabajo.',xp:12,diff:'easy'},
+    {id:'d33',icon:'✍️',name:'Escribe tus metas',desc:'Las metas del mes o semana. En papel. Específicas y reales.',xp:19,diff:'easy'},
+    {id:'d34',icon:'🌑',name:'Sin videojuegos',desc:'Un día entero sin videojuegos. Usa ese tiempo en construirte.',xp:38,diff:'hard'},
+    {id:'d35',icon:'🎧',name:'Sin música de fondo',desc:'Trabaja o estudia en silencio total mínimo 1 hora.',xp:22,diff:'medium'},
+  ]},
+  {id:'relacion',emoji:'❤️',name:'Relación & Social',missions:[
+    {id:'d36',icon:'📹',name:'Videollamada',desc:'Llama a tu novia por vídeo. No vale solo mensajes de texto.',xp:23,diff:'easy'},
+    {id:'d37',icon:'💌',name:'Mensaje sincero',desc:'Dile algo real que sientes. Sin clichés.',xp:16,diff:'easy'},
+    {id:'d38',icon:'🎁',name:'Sorpresa a distancia',desc:'Vídeo, audio, nota, detalle. Algo que no espere.',xp:27,diff:'medium'},
+    {id:'d39',icon:'📞',name:'Llama a alguien importante',desc:'Llama por voz (no mensajes) a un familiar o amigo que aprecias.',xp:17,diff:'easy'},
+    {id:'d40',icon:'🤗',name:'Haz algo por alguien',desc:'Una acción buena por otra persona sin esperar nada. Hoy.',xp:19,diff:'easy'},
+  ]},
+];
+const ALL_DAILY=CATEGORIES.flatMap(c=>c.missions.map(m=>({...m,cat:c.name})));
+
+const EPIC=[
+  {id:'e1',icon:'🔥',name:'El día perfecto',desc:'Completa TODAS las misiones diarias del día sin excepción.',xp:250,diff:'epic'},
+  {id:'e2',icon:'🧊',name:'Guerrero del amanecer',desc:'Levántate a las 5:30 AM y sal a correr inmediatamente.',xp:200,diff:'epic'},
+  {id:'e3',icon:'⚡',name:'Doble sesión física',desc:'Entrena al aire libre al amanecer Y gym por la tarde.',xp:210,diff:'epic'},
+  {id:'e4',icon:'🔇',name:'Día de monje',desc:'Sin redes, YouTube ni videojuegos en todo el día.',xp:170,diff:'epic'},
+  {id:'e5',icon:'🎤',name:'Sesión musical completa',desc:'Escribe una estrofa, graba un verse Y elige beats en el mismo día.',xp:150,diff:'epic'},
+  {id:'e6',icon:'🧠',name:'Triple conocimiento',desc:'IA, inversiones Y teórico en el mismo día.',xp:180,diff:'epic'},
+  {id:'e7',icon:'💼',name:'Modo emprendedor',desc:'Manda 5 CVs, escribe 2 ideas de negocio e investiga el mercado.',xp:190,diff:'epic'},
+  {id:'e8',icon:'📚',name:'Día de aprendizaje extremo',desc:'Lee 40+ páginas, estudia 1h para clase Y aprende programación.',xp:175,diff:'epic'},
+  {id:'e9',icon:'💪',name:'Bestia total',desc:'Gym, cardio, kegel, ducha fría y levantarte a las 6 AM. Todo.',xp:220,diff:'epic'},
+];
+
+// Auto-weekly: autoFrom = daily mission ID that feeds this weekly
+const WEEKLY_AUTO=[
+  {id:'wa01',icon:'⏰',name:'Madrugar 5 días',desc:'Levantarte antes de las 6 AM 5 veces esta semana.',xpTotal:180,total:5,diff:'hard',autoFrom:'d01'},
+  {id:'wa02',icon:'🌅',name:'Salida matutina 4 días',desc:'Sal a entrenar al amanecer 4 días esta semana.',xpTotal:160,total:4,diff:'hard',autoFrom:'d02'},
+  {id:'wa03',icon:'🏋️',name:'Gym 5 días',desc:'Entrena mínimo 5 días esta semana.',xpTotal:200,total:5,diff:'hard',autoFrom:'d07'},
+  {id:'wa04',icon:'🏃',name:'Cardio 4 días',desc:'Cardio real mínimo 4 días.',xpTotal:120,total:4,diff:'medium',autoFrom:'d08'},
+  {id:'wa05',icon:'💪',name:'Kegel 5 días',desc:'Ejercicios de kegel 5 días.',xpTotal:60,total:5,diff:'easy',autoFrom:'d03'},
+  {id:'wa06',icon:'🎤',name:'Freestyle 6 días',desc:'Mínimo 15 min de freestyle 6 días.',xpTotal:170,total:6,diff:'hard',autoFrom:'d12'},
+  {id:'wa07',icon:'🚗',name:'Teórico 5 días',desc:'Estudia el teórico 5 días (mínimo 30 min/día).',xpTotal:180,total:5,diff:'hard',autoFrom:'d18'},
+  {id:'wa08',icon:'📚',name:'Leer 5 días',desc:'Lee mínimo 20 páginas 5 días.',xpTotal:155,total:5,diff:'medium',autoFrom:'d17'},
+  {id:'wa09',icon:'📓',name:'Diario 6 días',desc:'Escribe en tu diario 6 días.',xpTotal:80,total:6,diff:'easy',autoFrom:'d22'},
+  {id:'wa10',icon:'🤖',name:'IA 4 días',desc:'Aprende algo de IA 4 días.',xpTotal:100,total:4,diff:'medium',autoFrom:'d21'},
+  {id:'wa11',icon:'📵',name:'Detox digital 4 días',desc:'2h sin redes durante 4 días.',xpTotal:155,total:4,diff:'hard',autoFrom:'d30'},
+  {id:'wa12',icon:'🚿',name:'Duchas frías 5 días',desc:'Ducha de contraste 5 días.',xpTotal:90,total:5,diff:'medium',autoFrom:'d04'},
+];
+
+// Build reverse map: daily → weekly auto
+const DAILY_TO_AUTO={};
+WEEKLY_AUTO.forEach(w=>{if(!DAILY_TO_AUTO[w.autoFrom])DAILY_TO_AUTO[w.autoFrom]=[];DAILY_TO_AUTO[w.autoFrom].push(w.id);});
+
+// Hard weeklies (manual, once per week)
+const WEEKLY_HARD=[
+  {id:'wh01',icon:'📖',name:'Maratón de estudio',desc:'Estudia un mínimo de 5 horas en un solo día esta semana.',xp:220,diff:'hard',mins:300},
+  {id:'wh02',icon:'🎵',name:'Graba una canción',desc:'Escribe, practica y graba una canción o tema completo esta semana.',xp:180,diff:'hard',mins:0},
+  {id:'wh03',icon:'💼',name:'10 CVs en un día',desc:'Manda 10 solicitudes de trabajo en un solo día.',xp:200,diff:'hard',mins:0},
+  {id:'wh04',icon:'🚫',name:'Semana sin masturbación',desc:'7 días seguidos sin masturbación. Control total.',xp:280,diff:'hard',mins:0},
+  {id:'wh05',icon:'📵',name:'3 días sin redes en absoluto',desc:'3 días completamente sin redes sociales. Nada de nada.',xp:240,diff:'hard',mins:0},
+  {id:'wh06',icon:'🏃',name:'Correr 20km en la semana',desc:'Acumula 20km corriendo a lo largo de la semana.',xp:200,diff:'hard',mins:0},
+];
+
+// Monthly missions
+const MONTHLY=[
+  {id:'mo01',icon:'📕',name:'Lee un libro entero',desc:'Termina un libro completo este mes. Sin resúmenes, sin atajos.',xp:500,diff:'monthly',mins:0},
+  {id:'mo02',icon:'🎵',name:'Graba tu primera maqueta',desc:'Produce y graba mínimo 3 canciones o freestyles en audio limpio.',xp:450,diff:'monthly',mins:0},
+  {id:'mo03',icon:'💼',name:'Consigue ingresos',desc:'Genera cualquier ingreso este mes: trabajo, venta, servicio. El primer euro cuenta.',xp:600,diff:'monthly',mins:0},
+  {id:'mo04',icon:'🏋️',name:'20 sesiones de gym',desc:'Completa mínimo 20 sesiones de gym o calistenia este mes.',xp:400,diff:'monthly',mins:0},
+  {id:'mo05',icon:'📚',name:'Estudia 30 horas este mes',desc:'Acumula 30 horas de estudio real (teórico, clase, programación, IA).',xp:550,diff:'monthly',mins:60},
+];
+
+const RANDOM=[
+  {icon:'🧊',name:'Ducha completamente fría',desc:'Ahora mismo. Mínimo 3 minutos sin parar.',xp:55},
+  {icon:'💌',name:'Carta larga a tu novia',desc:'Mínimo 10 frases sinceras. De verdad.',xp:28},
+  {icon:'🚶',name:'Paseo sin móvil 30 min',desc:'Sin música, sin auriculares. Solo tú y tus pensamientos.',xp:35},
+  {icon:'📓',name:'Carta a tu yo del futuro',desc:'Escribe cómo te imaginas en 2 años. Sin límites.',xp:40},
+  {icon:'💪',name:'100 sentadillas ya',desc:'En series. Sin excusas. Empieza.',xp:60},
+  {icon:'🎵',name:'Graba sin preparar nada',desc:'Abre el grabador y rapea 2 minutos. Solo flow.',xp:50},
+  {icon:'🚫',name:'3h sin YouTube',desc:'Cierra YouTube. No lo toques 3 horas.',xp:65},
+  {icon:'🧠',name:'20 preguntas del teórico',desc:'Ahora mismo. 20 preguntas del examen.',xp:35},
+  {icon:'📈',name:'Investiga un ETF o acción',desc:'Busca, lee, anota. Aprende algo concreto.',xp:40},
+  {icon:'🎯',name:'Objetivos de 90 días',desc:'Escribe qué quieres conseguir en 90 días. Específico.',xp:35},
+  {icon:'🏃',name:'Sprints 10x50m',desc:'Afuera. 10 sprints cortos a máxima intensidad.',xp:55},
+  {icon:'📖',name:'Lee 30 páginas del tirón',desc:'Sin parar. Sin móvil. Solo tú y el libro.',xp:45},
+  {icon:'💡',name:'Pitch de negocio 2 min',desc:'Explica tu idea de negocio favorita en voz alta.',xp:35},
+  {icon:'🔋',name:'1h sin móvil',desc:'Móvil apagado o en otra habitación. 1 hora entera.',xp:45},
+  {icon:'👊',name:'50 flexiones ahora',desc:'En series. Completas. Ya.',xp:45},
+  {icon:'💬',name:'Sorprende a tu novia',desc:'Vídeo, foto, carta. Algo que no espere.',xp:30},
+  {icon:'🌊',name:'10 min meditación',desc:'Siéntate, ojos cerrados. 10 minutos de silencio.',xp:28},
+  {icon:'💪',name:'Extra de kegel',desc:'Una sesión extra de kegel. Más que los 10 habituales.',xp:20},
+  {icon:'🧮',name:'Calcula tus finanzas',desc:'Anota ingresos, gastos posibles y cuánto podrías ahorrar.',xp:35},
+  {icon:'🎤',name:'60 segundos de rimas',desc:'Escribe la máxima cantidad de rimas en 60 segundos.',xp:30},
+  {icon:'📸',name:'Documenta tu progreso',desc:'Foto o nota de algo que hayas mejorado esta semana.',xp:15},
+  {icon:'🌐',name:'5 palabras en inglés',desc:'Aprende 5 palabras de inglés de negocios o rap. Memorízalas.',xp:15},
+  {icon:'🏋️',name:'Añade peso esta sesión',desc:'En tu próximo entreno, sube el peso en tu ejercicio principal.',xp:40},
+  {icon:'🤔',name:'Reflexión de 20 min',desc:'Siéntate y piensa: ¿qué estás haciendo bien? ¿Qué mal? Sin distracciones.',xp:30},
+  {icon:'🚗',name:'Simulacro de examen',desc:'Haz un examen de 30 preguntas seguidas sin parar. Cronometrado.',xp:50},
+];
+
+const REWARDS=[
+  {id:'rb1',icon:'☕',name:'Bebida especial',desc:'Café, batido o lo que te guste preparar.',cost:40,tier:'basic'},
+  {id:'rb2',icon:'🎵',name:'Hora de música libre',desc:'Una hora escuchando lo que quieras.',cost:50,tier:'basic'},
+  {id:'rb3',icon:'😌',name:'30 min de no hacer nada',desc:'Media hora de descanso puro. Cero culpa.',cost:55,tier:'basic'},
+  {id:'rb4',icon:'🛋️',name:'Siesta',desc:'Una siesta sin culpa.',cost:70,tier:'basic'},
+  {id:'rb5',icon:'📱',name:'30 min redes sociales',desc:'Media hora de scroll libre.',cost:90,tier:'basic'},
+  {id:'rb6',icon:'🍿',name:'Ver un vídeo largo',desc:'Documental, gameplay, lo que sea.',cost:65,tier:'basic'},
+  {id:'rm1',icon:'🎬',name:'Película o serie',desc:'Una peli o 2-3 capítulos. Tú eliges.',cost:190,tier:'medium'},
+  {id:'rm2',icon:'🎮',name:'2h videojuegos',desc:'Dos horas de gaming. Ganado.',cost:270,tier:'medium'},
+  {id:'rm3',icon:'📱',name:'2h redes sociales',desc:'Dos horas de libertad digital.',cost:230,tier:'medium'},
+  {id:'rm4',icon:'🌙',name:'Tarde libre total',desc:'Una tarde entera sin misiones.',cost:200,tier:'medium'},
+  {id:'rm5',icon:'🎧',name:'Tarde de música',desc:'Toda una tarde escuchando lo que quieras.',cost:160,tier:'medium'},
+  {id:'rm6',icon:'🕹️',name:'Tarde retro',desc:'Emuladores, juegos viejos, nostalgia.',cost:180,tier:'medium'},
+  {id:'rm7',icon:'🛏️',name:'Mañana libre',desc:'Levantarte cuando quieras. Sin alarma.',cost:230,tier:'medium'},
+  {id:'rh1',icon:'😴',name:'Día libre completo',desc:'Sin misiones, sin alarma, sin presión.',cost:500,tier:'high'},
+  {id:'rh2',icon:'🌙',name:'Noche libre total',desc:'Noche sin horarios ni misiones.',cost:550,tier:'high'},
+  {id:'rh3',icon:'🎮',name:'Maratón de videojuegos',desc:'Un día entero de gaming.',cost:700,tier:'high'},
+  {id:'rh4',icon:'🎬',name:'Maratón de series',desc:'Un día entero de series.',cost:580,tier:'high'},
+  {id:'rh5',icon:'🛌',name:'Fin de semana sin alarma',desc:'Sábado y domingo sin despertador.',cost:900,tier:'high'},
+  {id:'rh6',icon:'🕹️',name:'Día de gaming total',desc:'Desde que te levantes hasta que te acuestes.',cost:750,tier:'high'},
+  {id:'re1',icon:'🎤',name:'Ir a un concierto o evento',desc:'Un evento que te motive de verdad.',cost:1200,tier:'epic'},
+  {id:'re2',icon:'🏖️',name:'Día de excursión',desc:'Sal con amigos o solo a donde quieras.',cost:1000,tier:'epic'},
+  {id:'re3',icon:'🎮',name:'Semana de gaming vespertino',desc:'Jugar por las tardes una semana sin culpa.',cost:1500,tier:'epic'},
+  {id:'re4',icon:'📺',name:'Semana de series nocturnas',desc:'Una semana viendo series por las noches.',cost:1400,tier:'epic'},
+  {id:'re5',icon:'🌟',name:'Día VIP absoluto',desc:'Un día completo haciendo solo lo que quieras.',cost:2000,tier:'epic'},
+  {id:'re6',icon:'✈️',name:'Visita a tu novia',desc:'Organiza la visita. El premio gordo de verdad.',cost:5000,tier:'epic'},
+];
+
+const LVL_TITLES=['Dormido','Principiante','Despertando','En marcha','Determinado','Constante','Enfocado','Disciplinado','Máquina','Imparable','Élite','Veterano','Leyenda','Inmortal'];
+
+/* ══════════════════════════════════════════════════
+   TROPHIES — 82 total (25B + 25S + 30G + 1P = 81 + 1plat)
+══════════════════════════════════════════════════ */
+const T=[
+  // BRONCE (25)
+  {id:'b01',t:'bronze',i:'🌱',n:'Primer paso',d:'Completa tu primera misión.',f:s=>s.mc.d01>=0&&s.tm>=1},
+  {id:'b02',t:'bronze',i:'⏰',n:'Madrugador novel',d:'Levántate a las 6 AM por primera vez.',f:s=>(s.mc.d01||0)>=1},
+  {id:'b03',t:'bronze',i:'🌅',n:'Primera salida',d:'Sal a entrenar al amanecer 1 vez.',f:s=>(s.mc.d02||0)>=1},
+  {id:'b04',t:'bronze',i:'🏋️',n:'Primera sesión dura',d:'Completa la sesión de gym 1 vez.',f:s=>(s.mc.d07||0)>=1},
+  {id:'b05',t:'bronze',i:'🎤',n:'Primeras rimas',d:'Practica freestyle 3 veces.',f:s=>(s.mc.d12||0)>=3},
+  {id:'b06',t:'bronze',i:'📝',n:'Escritor de barras',d:'Escribe una estrofa 3 veces.',f:s=>(s.mc.d13||0)>=3},
+  {id:'b07',t:'bronze',i:'📚',n:'Lector novel',d:'Lee 20 páginas 3 veces.',f:s=>(s.mc.d17||0)>=3},
+  {id:'b08',t:'bronze',i:'🔥',n:'Racha de 3 días',d:'Mantén la racha 3 días seguidos.',f:s=>s.streak>=3},
+  {id:'b09',t:'bronze',i:'⚡',n:'Arranque',d:'Acumula 150 XP.',f:s=>s.totalXP>=150},
+  {id:'b10',t:'bronze',i:'🚗',n:'Al volante (casi)',d:'Estudia el teórico 3 veces.',f:s=>(s.mc.d18||0)>=3},
+  {id:'b11',t:'bronze',i:'🚫',n:'1 día limpio',d:'Completa "Cero pajas" por primera vez.',f:s=>(s.mc.d29||0)>=1},
+  {id:'b12',t:'bronze',i:'🎲',n:'Aventurero',d:'Completa 3 misiones aleatorias.',f:s=>s.tr>=3},
+  {id:'b13',t:'bronze',i:'📹',n:'A distancia',d:'Videollamada con tu novia 5 veces.',f:s=>(s.mc.d36||0)>=5},
+  {id:'b14',t:'bronze',i:'💡',n:'Inversor curioso',d:'Aprende de inversiones 3 veces.',f:s=>(s.mc.d25||0)>=3},
+  {id:'b15',t:'bronze',i:'🤖',n:'Nerd de la IA',d:'Aprende de IA 3 veces.',f:s=>(s.mc.d21||0)>=3},
+  {id:'b16',t:'bronze',i:'💼',n:'Candidato',d:'Manda CVs 5 veces.',f:s=>(s.mc.d24||0)>=5},
+  {id:'b17',t:'bronze',i:'💪',n:'Suelo pélvico activo',d:'Completa kegel 5 veces.',f:s=>(s.mc.d03||0)>=5},
+  {id:'b18',t:'bronze',i:'🎙️',n:'Primera grabación',d:'Graba tu primer verse.',f:s=>(s.mc.d15||0)>=1},
+  {id:'b19',t:'bronze',i:'🚿',n:'Contraste iniciado',d:'Ducha fría 3 veces.',f:s=>(s.mc.d04||0)>=3},
+  {id:'b20',t:'bronze',i:'📴',n:'Sin móvil por primera vez',d:'Completa "1h sin móvil" 1 vez.',f:s=>(s.mc.d31||0)>=1},
+  {id:'b21',t:'bronze',i:'💻',n:'Primer código',d:'Aprende a programar 3 veces.',f:s=>(s.mc.d20||0)>=3},
+  {id:'b22',t:'bronze',i:'🏃',n:'Primera carrera',d:'Completa cardio 3 veces.',f:s=>(s.mc.d08||0)>=3},
+  {id:'b23',t:'bronze',i:'📓',n:'Diario iniciado',d:'Escribe en tu diario 5 veces.',f:s=>(s.mc.d22||0)>=5},
+  {id:'b24',t:'bronze',i:'🔇',n:'Silencio',d:'Trabaja sin música 3 veces.',f:s=>(s.mc.d35||0)>=3},
+  {id:'b25',t:'bronze',i:'🏆',n:'Primera épica',d:'Completa tu primera misión épica.',f:s=>s.te>=1},
+  // PLATA (25)
+  {id:'s01',t:'silver',i:'🔥',n:'Racha de 7 días',d:'Una semana completa sin fallar.',f:s=>s.streak>=7},
+  {id:'s02',t:'silver',i:'⏰',n:'Madrugador de verdad',d:'Levántate a las 6 AM 10 veces.',f:s=>(s.mc.d01||0)>=10},
+  {id:'s03',t:'silver',i:'🌅',n:'Guerrero del amanecer',d:'Sal a entrenar al amanecer 10 veces.',f:s=>(s.mc.d02||0)>=10},
+  {id:'s04',t:'silver',i:'🏋️',n:'Atleta consistente',d:'Completa el gym 15 veces.',f:s=>(s.mc.d07||0)>=15},
+  {id:'s05',t:'silver',i:'🚫',n:'7 días limpio',d:'7 días seguidos sin masturbación.',f:s=>s.nfs>=7},
+  {id:'s06',t:'silver',i:'⭐',n:'Nivel 5',d:'Alcanza el nivel 5.',f:s=>s.level>=5},
+  {id:'s07',t:'silver',i:'💰',n:'500 XP',d:'Acumula 500 XP.',f:s=>s.totalXP>=500},
+  {id:'s08',t:'silver',i:'🎤',n:'MC en progreso',d:'Freestyle 20 veces.',f:s=>(s.mc.d12||0)>=20},
+  {id:'s09',t:'silver',i:'📚',n:'Lector serio',d:'Lee 20 páginas 15 días.',f:s=>(s.mc.d17||0)>=15},
+  {id:'s10',t:'silver',i:'🚗',n:'Listo para el examen',d:'Teórico 15 veces.',f:s=>(s.mc.d18||0)>=15},
+  {id:'s11',t:'silver',i:'📵',n:'Desintoxicado',d:'Detox digital 10 veces.',f:s=>(s.mc.d30||0)>=10},
+  {id:'s12',t:'silver',i:'🔥',n:'Racha de 14 días',d:'Dos semanas seguidas.',f:s=>s.streak>=14},
+  {id:'s13',t:'silver',i:'🧠',n:'1000 XP',d:'Acumula 1000 XP.',f:s=>s.totalXP>=1000},
+  {id:'s14',t:'silver',i:'💻',n:'Programador',d:'Aprende a programar 10 veces.',f:s=>(s.mc.d20||0)>=10},
+  {id:'s15',t:'silver',i:'🎙️',n:'En el estudio',d:'Graba 10 verses.',f:s=>(s.mc.d15||0)>=10},
+  {id:'s16',t:'silver',i:'💪',n:'Kegel consistente',d:'Kegel 20 veces.',f:s=>(s.mc.d03||0)>=20},
+  {id:'s17',t:'silver',i:'🧠',n:'Estratega',d:'Escribe 10 ideas de negocio.',f:s=>(s.mc.d26||0)>=10},
+  {id:'s18',t:'silver',i:'🚿',n:'Contraste diario',d:'Ducha fría 15 veces.',f:s=>(s.mc.d04||0)>=15},
+  {id:'s19',t:'silver',i:'📴',n:'Desconectado',d:'1h sin móvil 10 veces.',f:s=>(s.mc.d31||0)>=10},
+  {id:'s20',t:'silver',i:'🏃',n:'Corredor',d:'Cardio 15 veces.',f:s=>(s.mc.d08||0)>=15},
+  {id:'s21',t:'silver',i:'🚫',n:'14 días limpio',d:'14 días seguidos sin masturbación.',f:s=>s.nfs>=14},
+  {id:'s22',t:'silver',i:'🎮',n:'Sin pantallas',d:'Sin videojuegos 10 veces.',f:s=>(s.mc.d34||0)>=10},
+  {id:'s23',t:'silver',i:'🏆',n:'5 épicas',d:'Completa 5 misiones épicas.',f:s=>s.te>=5},
+  {id:'s24',t:'silver',i:'🎲',n:'10 aleatorias',d:'Completa 10 misiones aleatorias.',f:s=>s.tr>=10},
+  {id:'s25',t:'silver',i:'📅',n:'50 misiones totales',d:'Llega a 50 misiones completadas.',f:s=>s.tm>=50},
+  // ORO (30)
+  {id:'g01',t:'gold',i:'🔥',n:'Racha de 30 días',d:'Un mes entero sin fallar.',f:s=>s.streak>=30},
+  {id:'g02',t:'gold',i:'⏰',n:'Madrugador de élite',d:'Levantarte a las 6 AM 30 veces.',f:s=>(s.mc.d01||0)>=30},
+  {id:'g03',t:'gold',i:'🏋️',n:'Físico de élite',d:'50 sesiones de gym.',f:s=>(s.mc.d07||0)>=50},
+  {id:'g04',t:'gold',i:'🚫',n:'30 días limpio',d:'Un mes entero sin masturbación.',f:s=>s.nfs>=30},
+  {id:'g05',t:'gold',i:'👑',n:'Nivel 10',d:'Nivel 10 alcanzado.',f:s=>s.level>=10},
+  {id:'g06',t:'gold',i:'💎',n:'2000 XP',d:'2000 XP acumulados.',f:s=>s.totalXP>=2000},
+  {id:'g07',t:'gold',i:'🏆',n:'Rey de épicas',d:'15 misiones épicas completadas.',f:s=>s.te>=15},
+  {id:'g08',t:'gold',i:'📅',n:'Racha de 60 días',d:'60 días sin fallar. Eres otra persona.',f:s=>s.streak>=60},
+  {id:'g09',t:'gold',i:'🎤',n:'MC de verdad',d:'60 sesiones de freestyle.',f:s=>(s.mc.d12||0)>=60},
+  {id:'g10',t:'gold',i:'🚗',n:'El teórico es mío',d:'Estudia el teórico 30 veces.',f:s=>(s.mc.d18||0)>=30},
+  {id:'g11',t:'gold',i:'📚',n:'Devorador de libros',d:'Lee 20 páginas durante 40 días.',f:s=>(s.mc.d17||0)>=40},
+  {id:'g12',t:'gold',i:'🧠',n:'Hombre del renacimiento',d:'IA, inversiones Y programación 20 veces cada una.',f:s=>(s.mc.d21||0)>=20&&(s.mc.d25||0)>=20&&(s.mc.d20||0)>=20},
+  {id:'g13',t:'gold',i:'💰',n:'5000 XP',d:'5000 XP acumulados.',f:s=>s.totalXP>=5000},
+  {id:'g14',t:'gold',i:'🚫',n:'90 días limpio',d:'3 meses sin masturbación.',f:s=>s.nfs>=90},
+  {id:'g15',t:'gold',i:'💪',n:'Maestro del kegel',d:'Kegel 60 veces.',f:s=>(s.mc.d03||0)>=60},
+  {id:'g16',t:'gold',i:'🌅',n:'50 salidas al amanecer',d:'Sal a entrenar al amanecer 50 veces.',f:s=>(s.mc.d02||0)>=50},
+  {id:'g17',t:'gold',i:'🎙️',n:'30 verses grabados',d:'Graba 30 verses.',f:s=>(s.mc.d15||0)>=30},
+  {id:'g18',t:'gold',i:'📴',n:'Monje digital',d:'1h sin móvil 30 veces.',f:s=>(s.mc.d31||0)>=30},
+  {id:'g19',t:'gold',i:'💻',n:'Programador serio',d:'Programar 30 veces.',f:s=>(s.mc.d20||0)>=30},
+  {id:'g20',t:'gold',i:'🏃',n:'Atleta completo',d:'Cardio 40 veces.',f:s=>(s.mc.d08||0)>=40},
+  {id:'g21',t:'gold',i:'🚫',n:'180 días limpio',d:'6 meses sin masturbación. Control absoluto.',f:s=>s.nfs>=180},
+  {id:'g22',t:'gold',i:'📅',n:'Racha de 100 días',d:'100 días sin fallar. Eres imparable.',f:s=>s.streak>=100},
+  {id:'g23',t:'gold',i:'🎮',n:'Sin juegos 30 veces',d:'Sin videojuegos 30 días.',f:s=>(s.mc.d34||0)>=30},
+  {id:'g24',t:'gold',i:'🚿',n:'Contraste total',d:'Ducha fría 50 veces.',f:s=>(s.mc.d04||0)>=50},
+  {id:'g25',t:'gold',i:'💼',n:'50 CVs enviados',d:'Manda CVs 25 veces (50+ solicitudes).',f:s=>(s.mc.d24||0)>=25},
+  {id:'g26',t:'gold',i:'📓',n:'Diario constante',d:'Escribe en tu diario 50 días.',f:s=>(s.mc.d22||0)>=50},
+  {id:'g27',t:'gold',i:'🏋️',n:'100 sesiones de gym',d:'100 sesiones de gym completadas.',f:s=>(s.mc.d07||0)>=100},
+  {id:'g28',t:'gold',i:'🌟',n:'Nivel 12',d:'Nivel 12. Ya no eres el mismo.',f:s=>s.level>=12},
+  {id:'g29',t:'gold',i:'📅',n:'200 misiones',d:'200 misiones totales completadas.',f:s=>s.tm>=200},
+  {id:'g30',t:'gold',i:'🏅',n:'Mensual completada',d:'Completa tu primera misión mensual.',f:s=>s.monthlyDone>=1},
+  // PLATINO (1)
+  {id:'p01',t:'platinum',i:'💎',n:'El elegido',d:'Consigue los 80 trofeos anteriores. Leyenda absoluta.',f:s=>s.ut.length>=80},
+];
+
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+const DS={
+  xp:0,level:1,streak:0,bestStreak:0,lastDate:null,lastMonth:null,
+  dailyDone:{},epicDone:{},weeklyAutoProg:{},weeklyAutoXPGiven:{},
+  weeklyHardDone:{},monthlyDone_data:{},monthlyDoneCount:0,
+  tm:0,totalXP:0,te:0,tr:0,totalRew:0,
+  mc:{},nfs:0,weeklyXP:[0,0,0,0,0,0,0],
+  randomDone:false,currentRandom:null,ut:[],
+  monthlyDone:0,
+};
+let S={...DS};
+let wkTiv=null,wkTId=null,wkTSec=0,wkTTotal=0;
+let moTiv=null,moTId=null,moTSec=0,moTTotal=0;
+let humorQueue=[];
+let completionCount=0;// for triggering humor
+
+function save(){try{localStorage.setItem('lq6',JSON.stringify(S))}catch(e){}}
+function load(){
+  try{const d=localStorage.getItem('lq6');if(d)S={...DS,...JSON.parse(d)}}catch(e){}
+  if(!S.ut)S.ut=[];
+  if(!S.mc)S.mc={};
+  if(!S.weeklyXP||S.weeklyXP.length!==7)S.weeklyXP=[0,0,0,0,0,0,0];
+  checkDay();checkMonth();
+}
+
+function todayStr(){return new Date().toDateString()}
+function monthStr(){const n=new Date();return n.getFullYear()+'-'+(n.getMonth()+1)}
+
+function checkDay(){
+  const t=todayStr();
+  if(S.lastDate&&S.lastDate!==t){
+    // Commit daily completions to mc (for trophies)
+    // Only increment mc for missions that were done and NOT undone
+    ALL_DAILY.forEach(m=>{
+      if(S.dailyDone[m.id]){
+        S.mc[m.id]=(S.mc[m.id]||0)+1;
+      }
+    });
+    if(S.epicDone&&Object.values(S.epicDone).some(Boolean)){
+      // te already tracked in real-time
+    }
+    const had=Object.values(S.dailyDone||{}).some(Boolean);
+    if(had){S.streak=(S.streak||0)+1;if(S.streak>S.bestStreak)S.bestStreak=S.streak;}
+    else if(S.streak>0){S.streak=0;setTimeout(()=>{document.getElementById('penban').style.display='flex'},300);}
+    if(S.dailyDone['d29'])S.nfs=(S.nfs||0)+1; else S.nfs=0;
+    S.dailyDone={};S.epicDone={};S.randomDone=false;S.currentRandom=null;
+    S.weeklyXP.push(0);S.weeklyXP=S.weeklyXP.slice(-7);
+    if(new Date().getDay()===1){S.weeklyAutoProg={};S.weeklyAutoXPGiven={};S.weeklyHardDone={};}
+  }
+  S.lastDate=t;save();
+}
+
+function checkMonth(){
+  const m=monthStr();
+  if(S.lastMonth&&S.lastMonth!==m){
+    S.monthlyDone_data={};
+  }
+  S.lastMonth=m;save();
+}
+
+// Periodic check for day change while app is open
+setInterval(()=>{
+  if(todayStr()!==S.lastDate){checkDay();checkMonth();renderMissions();updateHdr();}
+},60000);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&todayStr()!==S.lastDate){checkDay();checkMonth();renderMissions();updateHdr();}
+});
+
+function xpFL(l){if(l<=1)return 0;return Math.floor(150*Math.pow(l-1,1.7))}
+function getLvlD(){const lo=xpFL(S.level),hi=xpFL(S.level+1),pct=Math.min(100,((S.xp-lo)/(hi-lo))*100);return{lo,hi,pct}}
+function getLvlT(l){return LVL_TITLES[Math.min(l,LVL_TITLES.length-1)]||'Leyenda'}
+
+function addXP(a){
+  S.xp+=a;S.totalXP+=a;
+  S.weeklyXP[S.weeklyXP.length-1]=(S.weeklyXP[S.weeklyXP.length-1]||0)+a;
+  let lv=false;
+  while(S.xp>=xpFL(S.level+1)){S.level+=1;lv=true;}
+  save();updateHdr();
+  if(lv)setTimeout(()=>showLv(S.level),700);
+  setTimeout(chkTr,300);
+}
+
+function updateHdr(){
+  document.getElementById('hLvl').textContent=S.level;
+  document.getElementById('hStr').textContent=S.streak;
+  document.getElementById('hXP').textContent=S.xp;
+  document.getElementById('hXF').style.width=getLvlD().pct+'%';
+}
+
+function sw(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='stats')renderStats();
+  if(name==='trophies')renderTrophies();
+  if(name==='shop')renderShop();
+}
+
+/* COUNTDOWN */
+function updCD(){
+  const now=new Date();
+  const mid=new Date(now);mid.setHours(24,0,0,0);const d=mid-now;
+  document.getElementById('cdD').textContent=
+    Math.floor(d/3600000).toString().padStart(2,'0')+':'+
+    Math.floor((d%3600000)/60000).toString().padStart(2,'0')+':'+
+    Math.floor((d%60000)/1000).toString().padStart(2,'0');
+  const dow=now.getDay(),dUM=dow===1?7:(8-dow)%7||7;
+  document.getElementById('cdW').textContent=dUM+'d';
+  const dots=document.getElementById('wkDots');
+  if(dots){
+    const td=(dow+6)%7;
+    dots.innerHTML=['L','M','X','J','V','S','D'].map((_,i)=>`<div class="wdot ${i<td?'past':i===td?'today':'future'}"></div>`).join('');
+    document.getElementById('wkLeft').textContent=dUM+' día'+(dUM===1?'':'s');
+  }
+}
+setInterval(updCD,1000);updCD();
+
+/* MOTTO */
+function updMotto(){
+  const idx=Math.floor(Date.now()/86400000)%MOTTOS.length;
+  document.getElementById('mottoText').textContent=MOTTOS[idx];
+}
+
+/* HUMOR */
+function maybeShowHumor(){
+  completionCount++;
+  if(completionCount%5===0||Math.random()<0.15){
+    const h=HUMOR[Math.floor(Math.random()*HUMOR.length)];
+    document.getElementById('humorEmoji').textContent=h.e;
+    document.getElementById('humorType').textContent=h.t.toUpperCase();
+    document.getElementById('humorText').textContent=h.txt;
+    setTimeout(()=>document.getElementById('humorOv').classList.add('show'),400);
+  }
+}
+function closeHumor(){document.getElementById('humorOv').classList.remove('show')}
+
+/* RENDER */
+function renderMissions(){renderEpic();renderDailyCats();renderWeeklyAuto();renderWeeklyHard();renderMonthly();renderRandom();}
+
+function dtag(d){
+  const m={easy:['de','Fácil'],medium:['dm','Normal'],hard:['dh','Difícil'],epic:['dep','ÉPICA'],monthly:['dmo','MENSUAL']};
+  const v=m[d]||['de',d];
+  return`<span class="dtag ${v[0]}">${v[1]}</span>`;
+}
+
+function renderEpic(){
+  const idx=Math.floor(Date.now()/86400000)%EPIC.length;
+  const ep=EPIC[idx];const isDone=S.epicDone&&S.epicDone[ep.id];
+  document.getElementById('epicBadge').textContent=isDone?'✓ Hecha':'+'+ep.xp+' XP';
+  document.getElementById('epicList').innerHTML=`
+    <div class="mc ${isDone?'done':''}" data-d="epic" onclick="toggleEpic('${ep.id}')">
+      <div class="mic">${ep.icon}</div>
+      <div class="mb"><div class="mn">${ep.name}</div><div class="md">${ep.desc}</div><div class="mtags">${dtag('epic')}</div></div>
+      <div class="mr"><div class="mxp">${ep.xp}</div><div class="mxpl">XP</div></div>
+      <div class="mcheck">✓</div><div class="mundo">↩ Deshacer</div>
+    </div>`;
+}
+
+function toggleEpic(id){
+  const m=EPIC.find(x=>x.id===id);if(!m)return;
+  if(S.epicDone&&S.epicDone[id]){
+    S.epicDone[id]=false;S.xp=Math.max(0,S.xp-m.xp);S.totalXP=Math.max(0,S.totalXP-m.xp);
+    S.te=Math.max(0,S.te-1);S.tm=Math.max(0,S.tm-1);
+    save();updateHdr();renderEpic();showToast('↩','Deshecha épica',null,'↩ -'+m.xp+' XP');return;
+  }
+  if(!S.epicDone)S.epicDone={};
+  S.epicDone[id]=true;S.tm+=1;S.te+=1;addXP(m.xp);save();renderEpic();
+  showToast(m.icon,'¡ÉPICA! '+m.name,m.xp);
+  for(let i=0;i<5;i++)setTimeout(()=>spawnPt(m.icon),i*80);
+  maybeShowHumor();
+}
+
+function renderDailyCats(){
+  const container=document.getElementById('dailyCats');
+  container.innerHTML='';
+  CATEGORIES.forEach(cat=>{
+    const done=cat.missions.filter(m=>S.dailyDone&&S.dailyDone[m.id]).length;
+    const allDone=done===cat.missions.length;
+    const div=document.createElement('div');
+    div.innerHTML=`<div class="cat-hdr"><div class="cat-title"><span>${cat.emoji}</span>${cat.name}</div><div class="cat-cnt ${allDone?'all':''}">${done}/${cat.missions.length}</div></div><div class="mstack" id="cat_${cat.id}"></div>`;
+    container.appendChild(div);
+    const stack=div.querySelector('#cat_'+cat.id);
+    cat.missions.forEach(m=>{
+      const isDone=S.dailyDone&&S.dailyDone[m.id];
+      const card=document.createElement('div');
+      card.className=`mc ${isDone?'done':''}`;
+      card.setAttribute('data-d',m.diff);
+      card.onclick=()=>toggleDaily(m.id);
+      card.innerHTML=`
+        <div class="mic">${m.icon}</div>
+        <div class="mb"><div class="mn">${m.name}</div><div class="md">${m.desc}</div><div class="mtags">${dtag(m.diff)}</div></div>
+        <div class="mr"><div class="mxp">${m.xp}</div><div class="mxpl">XP</div></div>
+        <div class="mcheck">✓</div><div class="mundo">↩ Deshacer</div>`;
+      stack.appendChild(card);
+    });
+  });
+}
+
+function toggleDaily(id){
+  const m=ALL_DAILY.find(x=>x.id===id);if(!m)return;
+  if(!S.dailyDone)S.dailyDone={};
+  if(S.dailyDone[id]){
+    // UNDO — don't count for trophies (mc not incremented yet, only at day reset)
+    S.dailyDone[id]=false;
+    S.xp=Math.max(0,S.xp-m.xp);S.totalXP=Math.max(0,S.totalXP-m.xp);
+    S.tm=Math.max(0,S.tm-1);
+    // Undo auto-weekly
+    undoAutoWeekly(id);
+    save();updateHdr();renderDailyCats();renderWeeklyAuto();
+    showToast('↩','Deshecha: '+m.name,null,'↩ -'+m.xp+' XP');
+    return;
+  }
+  S.dailyDone[id]=true;S.tm+=1;
+  addXP(m.xp);
+  // Auto-update weekly
+  triggerAutoWeekly(id);
+  save();renderDailyCats();renderWeeklyAuto();
+  showToast(m.icon,m.name,m.xp);spawnPt(m.icon);
+  maybeShowHumor();
+}
+
+/* AUTO WEEKLY LOGIC */
+function triggerAutoWeekly(dailyId){
+  const wids=DAILY_TO_AUTO[dailyId];
+  if(!wids)return;
+  if(!S.weeklyAutoProg)S.weeklyAutoProg={};
+  if(!S.weeklyAutoXPGiven)S.weeklyAutoXPGiven={};
+  wids.forEach(wid=>{
+    const w=WEEKLY_AUTO.find(x=>x.id===wid);if(!w)return;
+    const prev=S.weeklyAutoProg[wid]||0;
+    if(prev>=w.total)return;
+    S.weeklyAutoProg[wid]=prev+1;
+    if(S.weeklyAutoProg[wid]>=w.total&&!S.weeklyAutoXPGiven[wid]){
+      S.weeklyAutoXPGiven[wid]=true;
+      addXP(w.xpTotal);
+      setTimeout(()=>showToast('🏆','¡Semanal completada! '+w.name,w.xpTotal),500);
+      for(let i=0;i<4;i++)setTimeout(()=>spawnPt('⭐'),i*70);
+    }
+  });
+}
+
+function undoAutoWeekly(dailyId){
+  const wids=DAILY_TO_AUTO[dailyId];
+  if(!wids)return;
+  if(!S.weeklyAutoProg)return;
+  if(!S.weeklyAutoXPGiven)S.weeklyAutoXPGiven={};
+  wids.forEach(wid=>{
+    const w=WEEKLY_AUTO.find(x=>x.id===wid);if(!w)return;
+    const prev=S.weeklyAutoProg[wid]||0;
+    if(prev<=0)return;
+    const wasComplete=(prev>=w.total);
+    S.weeklyAutoProg[wid]=prev-1;
+    if(wasComplete&&S.weeklyAutoXPGiven[wid]){
+      S.weeklyAutoXPGiven[wid]=false;
+      S.xp=Math.max(0,S.xp-w.xpTotal);
+      S.totalXP=Math.max(0,S.totalXP-w.xpTotal);
+      updateHdr();
+    }
+  });
+}
+
+function renderWeeklyAuto(){
+  const done=WEEKLY_AUTO.filter(w=>(S.weeklyAutoProg&&S.weeklyAutoProg[w.id]||0)>=w.total).length;
+  document.getElementById('wAutoBadge').textContent=done+'/'+WEEKLY_AUTO.length;
+  document.getElementById('weeklyAutoList').innerHTML=WEEKLY_AUTO.map(w=>{
+    const p=S.weeklyAutoProg&&S.weeklyAutoProg[w.id]||0;
+    const isDone=p>=w.total;
+    const pct=Math.min(100,(p/w.total)*100);
+    const srcM=ALL_DAILY.find(m=>m.id===w.autoFrom);
+    return`<div class="wc">
+      <div class="wt"><div class="wi">${w.icon}</div>
+        <div class="win"><div class="wn">${w.name}</div>
+          <div class="wd">${w.desc}</div>
+          ${srcM?`<div class="autoprog">🤖 Auto desde: "${srcM.name}"</div>`:''}
+        </div>
+      </div>
+      <div class="wm"><span class="wcount"><b>${p}</b>/${w.total}</span><span class="wxp">${isDone?'✓ COMPLETADA':'+'+w.xpTotal+' XP al llegar'}</span></div>
+      <div class="ptrack"><div class="pfill ${isDone?'complete':''}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderWeeklyHard(){
+  const done=WEEKLY_HARD.filter(w=>S.weeklyHardDone&&S.weeklyHardDone[w.id]).length;
+  document.getElementById('wHardBadge').textContent=done+'/'+WEEKLY_HARD.length;
+  const isRun=wkTId;
+  document.getElementById('weeklyHardList').innerHTML=WEEKLY_HARD.map(w=>{
+    const isDone=S.weeklyHardDone&&S.weeklyHardDone[w.id];
+    const iR=wkTId===w.id;
+    return`<div class="wc">
+      <div class="wt"><div class="wi">${w.icon}</div><div class="win"><div class="wn">${w.name}</div><div class="wd">${w.desc}</div></div></div>
+      <div class="wm"><span class="wcount">${isDone?'✓ Hecha':'Pendiente'}</span><span class="wxp">+${w.xp} XP</span></div>
+      <div class="ptrack"><div class="pfill ${isDone?'complete':''}" style="width:${isDone?100:0}%"></div></div>
+      <div class="wbtns">
+        <button class="wadd" ${isDone?'disabled':''} onclick="completeWH('${w.id}')">${isDone?'✓ Hecha':'+ Marcar completada'}</button>
+        ${isDone?`<button class="wundo" onclick="undoWH('${w.id}')">↩</button>`:''}
+        ${w.mins>0?`<button class="wtbtn ${iR?'running':''}" id="wtb_${w.id}" onclick="toggleWkT('${w.id}',${w.mins})">⏱ ${iR?fmtS(wkTSec):w.mins+'min'}</button>`:''}
+      </div>
+      ${w.mins>0?`<div class="wtd ${iR?'show':''}" id="wtd_${w.id}">
+        <div><div class="wtt" id="wtt_${w.id}">${fmtS(iR?wkTSec:w.mins*60)}</div><div class="wtlbl">Tiempo mínimo</div></div>
+        <div class="wtbar"><div class="wtfill" id="wtf_${w.id}" style="width:${iR?(1-wkTSec/wkTTotal)*100:0}%"></div></div>
+        <button class="wtstop" onclick="stopWkT()">■</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function completeWH(id){
+  const w=WEEKLY_HARD.find(x=>x.id===id);if(!w)return;
+  if(!S.weeklyHardDone)S.weeklyHardDone={};
+  if(S.weeklyHardDone[id])return;
+  S.weeklyHardDone[id]=true;S.tm+=1;addXP(w.xp);save();renderWeeklyHard();
+  showToast(w.icon,'¡Reto semanal! '+w.name,w.xp);spawnPt(w.icon);
+  maybeShowHumor();
+}
+function undoWH(id){
+  const w=WEEKLY_HARD.find(x=>x.id===id);if(!w)return;
+  if(!S.weeklyHardDone||!S.weeklyHardDone[id])return;
+  S.weeklyHardDone[id]=false;
+  S.xp=Math.max(0,S.xp-w.xp);S.totalXP=Math.max(0,S.totalXP-w.xp);
+  S.tm=Math.max(0,S.tm-1);save();updateHdr();renderWeeklyHard();
+  showToast('↩','Deshecho: '+w.name,null,'↩ -'+w.xp+' XP');
+}
+
+/* MONTHLY */
+function renderMonthly(){
+  if(!S.monthlyDone_data)S.monthlyDone_data={};
+  const done=MONTHLY.filter(m=>S.monthlyDone_data[m.id]).length;
+  document.getElementById('monthlyBadge').textContent=done+'/'+MONTHLY.length;
+  const now=new Date();
+  const nextM=new Date(now.getFullYear(),now.getMonth()+1,1);
+  const daysLeft=Math.ceil((nextM-now)/86400000);
+  document.getElementById('monthlyReset').textContent=daysLeft+' días hasta el reset';
+  const isMR=moTId;
+  document.getElementById('monthlyList').innerHTML=MONTHLY.map(m=>{
+    const isDone=S.monthlyDone_data&&S.monthlyDone_data[m.id];
+    const iR=moTId===m.id;
+    return`<div class="mc ${isDone?'done':''}" data-d="monthly" onclick="${isDone?'undoMonthly':'completeMonthly'}('${m.id}')">
+      <div class="mic">${m.icon}</div>
+      <div class="mb">
+        <div class="mn">${m.name}</div>
+        <div class="md">${m.desc}</div>
+        <div class="mtags">${dtag('monthly')}${m.mins>0?`<button class="monthly-timer-btn ${iR?'running':''}" onclick="event.stopPropagation();toggleMoT('${m.id}',${m.mins})">⏱ ${iR?fmtS(moTSec):m.mins+'min'}</button>`:''}
+        </div>
+        ${m.mins>0?`<div class="mtimer-display ${iR?'show':''}" id="mtd_${m.id}">
+          <div><div class="mtt" id="mtt_${m.id}">${fmtS(iR?moTSec:m.mins*60)}</div></div>
+          <div class="mtbar"><div class="mtfill" id="mtf_${m.id}" style="width:${iR?(1-moTSec/moTTotal)*100:0}%"></div></div>
+          <button class="mtstop" onclick="event.stopPropagation();stopMoT()">■</button>
+        </div>`:''}
+      </div>
+      <div class="mr"><div class="mxp">${m.xp}</div><div class="mxpl">XP</div></div>
+      <div class="mcheck">✓</div><div class="mundo">↩ Deshacer</div>
+    </div>`;
+  }).join('');
+}
+
+function completeMonthly(id){
+  const m=MONTHLY.find(x=>x.id===id);if(!m)return;
+  if(!S.monthlyDone_data)S.monthlyDone_data={};
+  if(S.monthlyDone_data[id])return;
+  S.monthlyDone_data[id]=true;S.monthlyDone=(S.monthlyDone||0)+1;S.tm+=1;
+  addXP(m.xp);save();renderMonthly();
+  showToast(m.icon,'¡MENSUAL! '+m.name,m.xp);
+  for(let i=0;i<8;i++)setTimeout(()=>spawnPt(m.icon),i*60);
+  maybeShowHumor();
+}
+function undoMonthly(id){
+  const m=MONTHLY.find(x=>x.id===id);if(!m)return;
+  if(!S.monthlyDone_data||!S.monthlyDone_data[id])return;
+  S.monthlyDone_data[id]=false;S.monthlyDone=Math.max(0,(S.monthlyDone||1)-1);
+  S.xp=Math.max(0,S.xp-m.xp);S.totalXP=Math.max(0,S.totalXP-m.xp);
+  S.tm=Math.max(0,S.tm-1);save();updateHdr();renderMonthly();
+  showToast('↩','Deshecha mensual',null,'↩ -'+m.xp+' XP');
+}
+
+/* TIMERS — weekly hard */
+function fmtS(s){return Math.floor(s/60).toString().padStart(2,'0')+':'+(s%60).toString().padStart(2,'0')}
+
+function toggleWkT(id,mins){
+  if(wkTId===id){clearInterval(wkTiv);wkTiv=null;wkTId=null;renderWeeklyHard();return;}
+  clearInterval(wkTiv);wkTId=id;wkTSec=mins*60;wkTTotal=mins*60;
+  wkTiv=setInterval(()=>{
+    wkTSec--;
+    const tt=document.getElementById('wtt_'+id),tf=document.getElementById('wtf_'+id),tb=document.getElementById('wtb_'+id);
+    if(tt)tt.textContent=fmtS(wkTSec);
+    if(tf)tf.style.width=((1-wkTSec/wkTTotal)*100)+'%';
+    if(tb)tb.textContent='⏱ '+fmtS(wkTSec);
+    if(wkTSec<=0){clearInterval(wkTiv);wkTiv=null;wkTId=null;showToast('⏱️','¡Tiempo! Marca la misión como hecha.',null,'✓');renderWeeklyHard();}
+  },1000);
+  renderWeeklyHard();
+}
+function stopWkT(){clearInterval(wkTiv);wkTiv=null;wkTId=null;renderWeeklyHard();}
+
+/* TIMERS — monthly */
+function toggleMoT(id,mins){
+  if(moTId===id){clearInterval(moTiv);moTiv=null;moTId=null;renderMonthly();return;}
+  clearInterval(moTiv);moTId=id;moTSec=mins*60;moTTotal=mins*60;
+  moTiv=setInterval(()=>{
+    moTSec--;
+    const tt=document.getElementById('mtt_'+id),tf=document.getElementById('mtf_'+id);
+    if(tt)tt.textContent=fmtS(moTSec);
+    if(tf)tf.style.width=((1-moTSec/moTTotal)*100)+'%';
+    if(moTSec<=0){clearInterval(moTiv);moTiv=null;moTId=null;showToast('⏱️','¡Sesión mensual! Sigue acumulando.',null,'✓');renderMonthly();}
+  },1000);
+  renderMonthly();
+}
+function stopMoT(){clearInterval(moTiv);moTiv=null;moTId=null;renderMonthly();}
+
+/* RANDOM */
+function renderRandom(){
+  const el=document.getElementById('rndInner');
+  if(S.randomDone){el.innerHTML='<div class="rnddone">✓ Aleatoria completada hoy</div>';return;}
+  if(S.currentRandom){
+    const r=S.currentRandom;
+    el.innerHTML=`<div style="animation:pgIn .3s ease">
+      <div class="rndname">${r.icon} ${r.name}</div>
+      <div class="rnddesc">${r.desc}</div>
+      <button class="rndcmp" onclick="completeRandom()">✓ Completada (+${r.xp} XP)</button>
+    </div>`;return;
+  }
+  el.innerHTML='<button class="rndbtn" onclick="rollRandom()">🎲 Misión aleatoria del día</button>';
+}
+function rollRandom(){if(S.randomDone)return;S.currentRandom=RANDOM[Math.floor(Math.random()*RANDOM.length)];save();renderRandom();}
+function completeRandom(){
+  if(!S.currentRandom||S.randomDone)return;
+  const r=S.currentRandom;S.randomDone=true;S.tr+=1;S.tm+=1;addXP(r.xp);
+  save();renderRandom();showToast(r.icon,r.name,r.xp);spawnPt(r.icon);maybeShowHumor();
+}
+
+/* SHOP */
+const TIER_C={basic:'var(--text2)',medium:'var(--cyan)',high:'var(--purple)',epic:'var(--gold)'};
+const TIER_N={basic:'⚡ Básicos',medium:'🔥 Medios',high:'💎 Premium',epic:'👑 Épicos'};
+function renderShop(){
+  document.getElementById('shopXP').textContent=S.xp;
+  let h='';
+  ['basic','medium','high','epic'].forEach(tier=>{
+    h+=`<div class="tiersep" style="color:${TIER_C[tier]}">${TIER_N[tier]}</div>`;
+    REWARDS.filter(r=>r.tier===tier).forEach(r=>{
+      const can=S.xp>=r.cost;
+      h+=`<div class="rc ${can?'':'unaf'}">
+        <div class="ricon">${r.icon}</div>
+        <div class="rin"><div class="rn">${r.name}</div><div class="rdesc">${r.desc}</div></div>
+        <div class="rr"><span class="rcost">${r.cost}</span><span class="rcostl">XP</span>
+          <button class="buybtn" ${can?'':'disabled'} onclick="buyR('${r.id}')">Canjear</button></div>
+      </div>`;
+    });
+  });
+  document.getElementById('shopList').innerHTML=h;
+}
+function buyR(id){
+  const r=REWARDS.find(x=>x.id===id);if(!r||S.xp<r.cost)return;
+  if(!confirm(`¿Canjear "${r.name}" por ${r.cost} XP?`))return;
+  S.xp-=r.cost;S.totalRew+=1;save();renderShop();updateHdr();
+  showToast(r.icon,'¡Disfrutado! '+r.name,null,'−'+r.cost+' XP');
+  setTimeout(chkTr,200);
+}
+
+/* STATS */
+function renderStats(){
+  const{pct}=getLvlD();
+  document.getElementById('sLvlN').textContent=S.level;
+  document.getElementById('sLvlT').textContent=getLvlT(S.level);
+  document.getElementById('sXPP').textContent=`${S.xp} / ${xpFL(S.level+1)} XP para nivel ${S.level+1}`;
+  document.getElementById('sXPF').style.width=pct+'%';
+  document.getElementById('stXP').textContent=S.totalXP;
+  document.getElementById('stStr').textContent=S.streak;
+  document.getElementById('stBStr').textContent=S.bestStreak;
+  document.getElementById('stM').textContent=S.tm;
+  document.getElementById('stNF').textContent=S.nfs;
+  const td=Object.values(S.dailyDone||{}).filter(Boolean).length+Object.values(S.epicDone||{}).filter(Boolean).length;
+  document.getElementById('stTd').textContent=td;
+  const days=['L','M','X','J','V','S','D'],maxV=Math.max(...S.weeklyXP,1);
+  document.getElementById('weekChart').innerHTML=S.weeklyXP.map((v,i)=>{
+    const h=Math.max(3,Math.floor((v/maxV)*70)),isT=i===S.weeklyXP.length-1;
+    return`<div class="cbw"><div class="cb ${isT?'td':''}" style="height:${h}px"></div><span class="cday" style="${isT?'color:var(--gold)':''}">${days[i]}</span></div>`;
+  }).join('');
+}
+
+/* TROPHIES */
+function chkTr(){
+  let nw=[];
+  T.forEach(t=>{
+    if(!S.ut.includes(t.id)&&t.f(S)){S.ut.push(t.id);nw.push(t);}
+  });
+  if(nw.length){save();nw.forEach((t,i)=>setTimeout(()=>showTrNotif(t),i*2400));}
+}
+
+function renderTrophies(){
+  const c={bronze:0,silver:0,gold:0,platinum:0};
+  S.ut.forEach(id=>{const t=T.find(x=>x.id===id);if(t)c[t.t]=(c[t.t]||0)+1;});
+  document.getElementById('tcB').textContent=c.bronze||0;
+  document.getElementById('tcS').textContent=c.silver||0;
+  document.getElementById('tcG').textContent=c.gold||0;
+  document.getElementById('tcP').textContent=c.platinum||0;
+  const order=['platinum','gold','silver','bronze'];
+  const ts={bronze:{c:'tsbronze',l:'🥉 BRONCE'},silver:{c:'tssilver',l:'🥈 PLATA'},gold:{c:'tsgold',l:'🥇 ORO'},platinum:{c:'tsplat',l:'💎 PLATINO'}};
+  const ti={bronze:'🥉',silver:'🥈',gold:'🥇',platinum:'💎'};
+  let h='';
+  order.forEach(tier=>{
+    h+=`<div class="tsep ${ts[tier].c}">${ts[tier].l}</div>`;
+    T.filter(t=>t.t===tier).forEach(t=>{
+      const un=S.ut.includes(t.id);
+      h+=`<div class="tcard ${un?'unlocked':'locked'} ${tier==='platinum'&&un?'platcard':''}">
+        <div class="ticw">${un?t.i:'❓'}</div>
+        <div class="tbody"><div class="tname">${un?t.n:'???'}</div><div class="tdesc">${t.d}</div>${un?'<div class="tdate">✓ Desbloqueado</div>':''}</div>
+        <span class="ttier">${ti[tier]}</span>
+      </div>`;
+    });
+  });
+  document.getElementById('trophyList').innerHTML=h;
+}
+
+/* NOTIFICATIONS */
+let tTO;
+function showToast(icon,text,xp,override){
+  clearTimeout(tTO);
+  document.getElementById('tIcon').textContent=icon;
+  document.getElementById('tText').textContent=text;
+  const b=document.getElementById('tXP');
+  b.textContent=override?override:xp>0?'+'+xp+' XP':'';
+  const t=document.getElementById('toast');t.classList.add('show');
+  tTO=setTimeout(()=>t.classList.remove('show'),2800);
+}
+let tnTO;
+function showTrNotif(t){
+  clearTimeout(tnTO);
+  const lmap={bronze:'bronze',silver:'silver',gold:'gold',platinum:'plat'};
+  const ln={bronze:'🥉 BRONCE',silver:'🥈 PLATA',gold:'🥇 ORO',platinum:'💎 PLATINO'};
+  document.getElementById('nIco').textContent=t.i;
+  document.getElementById('nLbl').textContent=ln[t.t]+' DESBLOQUEADO';
+  document.getElementById('nLbl').className='nlbl '+lmap[t.t];
+  document.getElementById('nName').textContent=t.n;
+  document.getElementById('nDesc').textContent=t.d;
+  const el=document.getElementById('trnotif');el.classList.add('show');
+  tnTO=setTimeout(()=>el.classList.remove('show'),4500);
+}
+function showLv(l){
+  document.getElementById('lvN').textContent=l;
+  document.getElementById('lvTN').textContent=getLvlT(l);
+  document.getElementById('lvov').classList.add('show');
+}
+function closeLv(){document.getElementById('lvov').classList.remove('show')}
+function spawnPt(icon){
+  const em=[icon,'⭐','✨','💫','⚡'];
+  for(let i=0;i<10;i++)setTimeout(()=>{
+    const p=document.createElement('div');p.className='pt';
+    p.textContent=em[Math.floor(Math.random()*em.length)];
+    p.style.left=(10+Math.random()*80)+'vw';p.style.bottom='90px';
+    document.body.appendChild(p);setTimeout(()=>p.remove(),1400);
+  },i*55);
+}
+
+/* MAIN TIMER */
+const CIRC=509.3;
+let tsec=25*60,ttot=25*60,trun=false,tiv=null,tmode='FOCO',pom=0;
+function setMode(btn,name,mins){
+  clearInterval(tiv);trun=false;tsec=mins*60;ttot=mins*60;tmode=name;
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.getElementById('tPlayBtn').textContent='▶ Iniciar';renderTimer();
+}
+function renderTimer(){
+  const m=Math.floor(tsec/60).toString().padStart(2,'0'),s=(tsec%60).toString().padStart(2,'0');
+  document.getElementById('tDisp').textContent=`${m}:${s}`;
+  document.getElementById('tLbl').textContent=tmode;
+  document.getElementById('ringFill').style.strokeDashoffset=CIRC*(tsec/ttot);
+  document.querySelectorAll('.sdot').forEach((d,i)=>d.classList.toggle('done',i<pom));
+  document.getElementById('sLbl').textContent=`Sesión ${pom+1} de 4 · 4 completos = +50 XP`;
+}
+function toggleTimer(){
+  if(trun){clearInterval(tiv);trun=false;document.getElementById('tPlayBtn').textContent='▶ Reanudar';}
+  else{
+    trun=true;document.getElementById('tPlayBtn').textContent='⏸ Pausar';
+    tiv=setInterval(()=>{
+      tsec--;if(tsec<=0){
+        clearInterval(tiv);trun=false;tsec=0;renderTimer();
+        pom=(pom+1)%5;document.getElementById('tPlayBtn').textContent='▶ Iniciar';
+        if(pom===0){addXP(50);showToast('🏆','¡4 Pomodoros completados!',50);}
+        return;
+      }
+      renderTimer();
+    },1000);
+  }
+}
+function resetTimer(){clearInterval(tiv);trun=false;tsec=ttot;document.getElementById('tPlayBtn').textContent='▶ Iniciar';renderTimer();}
+
+function hardReset(){
+  if(!confirm('¿Borrar TODO el progreso? Sin vuelta atrás.'))return;
+  if(!confirm('¿Seguro al 100%?'))return;
+  localStorage.removeItem('lq6');location.reload();
+}
+
+/* WEEK CD DISPLAY */
+function renderWeekCd(){
+  const dow=new Date().getDay(),dUM=dow===1?7:(8-dow)%7||7;
+  const dots=document.getElementById('wkDots');
+  if(!dots)return;
+  const td=(dow+6)%7;
+  dots.innerHTML=['L','M','X','J','V','S','D'].map((_,i)=>`<div class="wdot ${i<td?'past':i===td?'today':'future'}"></div>`).join('');
+  document.getElementById('wkLeft').textContent=dUM+' día'+(dUM===1?'':'s');
+}
+
+/* INIT */
+load();
+updateHdr();
+updMotto();
+renderMissions();
+renderTimer();
+renderWeekCd();
+setTimeout(chkTr,600);
+if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();
+</script>
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
